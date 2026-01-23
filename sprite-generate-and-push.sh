@@ -170,7 +170,7 @@ echo ""
 
 # Execute the script on the Sprite using sprite exec
 # This waits for completion and returns output
-sprite exec "$SPRITE_SCRIPT"
+sprite exec -s "$SPRITE_NAME" "$SPRITE_SCRIPT"
 
 exit_code=$?
 
