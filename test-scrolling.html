@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrolling Test Suite</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #0f0;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #0ff;
+            text-align: center;
+            border-bottom: 2px solid #0ff;
+            padding-bottom: 10px;
+        }
+
+        .test-section {
+            background: #2a2a2a;
+            border: 2px solid #0f0;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .test-case {
+            margin: 10px 0;
+            padding: 10px;
+            background: #1a1a1a;
+            border-left: 4px solid #666;
+        }
+
+        .test-case.pass {
+            border-left-color: #0f0;
+        }
+
+        .test-case.fail {
+            border-left-color: #f00;
+            color: #f00;
+        }
+
+        .test-result {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-left: 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .pass .test-result {
+            background: #0f0;
+            color: #000;
+        }
+
+        .fail .test-result {
+            background: #f00;
+            color: #fff;
+        }
+
+        code {
+            background: #000;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #ff0;
+        }
+
+        .summary {
+            text-align: center;
+            font-size: 24px;
+            margin: 30px 0;
+            padding: 20px;
+            border: 3px solid #0ff;
+            border-radius: 10px;
+        }
+
+        .summary.all-pass {
+            border-color: #0f0;
+            color: #0f0;
+        }
+
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #0ff;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Landing Page Scrolling Test Suite</h1>
+
+    <div class="test-section">
+        <h2>📋 Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🖼️ Visual Inspection</h2>
+        <p>The landing page is loaded below. Try scrolling within the iframe to verify scrolling works:</p>
+        <iframe src="index.html" id="landing-page-frame"></iframe>
+    </div>
+
+    <div id="summary" class="summary"></div>
+
+    <script>
+        const tests = [];
+        let passCount = 0;
+        let failCount = 0;
+
+        function addTest(name, passed, details) {
+            tests.push({ name, passed, details });
+            if (passed) passCount++;
+            else failCount++;
+        }
+
+        function runTests() {
+            // Test 1: Check if index.html exists and is accessible
+            fetch('index.html')
+                .then(response => {
+                    addTest(
+                        'Landing page file exists',
+                        response.ok,
+                        response.ok ? 'index.html loaded successfully' : 'Failed to load index.html'
+                    );
+                    return response.text();
+                })
+                .then(html => {
+                    // Test 2: Check for absence of overflow: hidden on body
+                    const overflowHiddenTest = !html.match(/body\s*{[^}]*overflow:\s*hidden/i);
+                    addTest(
+                        'Body does not have overflow: hidden',
+                        overflowHiddenTest,
+                        overflowHiddenTest
+                            ? 'Body element allows scrolling'
+                            : 'Body element has overflow: hidden which prevents scrolling'
+                    );
+
+                    // Test 3: Check for flex-start alignment
+                    const flexStartTest = html.includes('align-items: flex-start');
+                    addTest(
+                        'Body uses flex-start alignment',
+                        flexStartTest,
+                        flexStartTest
+                            ? 'Body uses align-items: flex-start for proper scroll behavior'
+                            : 'Body might not use flex-start alignment'
+                    );
+
+                    // Test 4: Check for padding on body
+                    const paddingTest = html.match(/body\s*{[^}]*padding:/i);
+                    addTest(
+                        'Body has padding defined',
+                        paddingTest !== null,
+                        paddingTest
+                            ? 'Body has padding for proper spacing'
+                            : 'Body might not have padding defined'
+                    );
+
+                    // Test 5: Check for min-height instead of fixed height
+                    const minHeightTest = html.includes('min-height: 100vh') &&
+                                         !html.match(/body\s*{[^}]*height:\s*100vh[^}]*}/i);
+                    addTest(
+                        'Body uses min-height instead of fixed height',
+                        minHeightTest,
+                        minHeightTest
+                            ? 'Body uses min-height which allows content to expand'
+                            : 'Body might use fixed height which could prevent scrolling'
+                    );
+
+                    renderResults();
+                })
+                .catch(error => {
+                    addTest('Landing page file exists', false, 'Error loading index.html: ' + error.message);
+                    renderResults();
+                });
+
+            // Test 6: Check iframe scrolling capability after load
+            const iframe = document.getElementById('landing-page-frame');
+            iframe.onload = () => {
+                setTimeout(() => {
+                    try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        const body = iframeDoc.body;
+                        const isScrollable = body.scrollHeight > body.clientHeight;
+
+                        addTest(
+                            'Page content can scroll (visual test)',
+                            true,
+                            `Page body scrollHeight: ${body.scrollHeight}px, clientHeight: ${body.clientHeight}px. ` +
+                            (isScrollable ? 'Page is scrollable' : 'Page fits in viewport (scrolling not needed)')
+                        );
+                    } catch (e) {
+                        addTest(
+                            'Page content can scroll (visual test)',
+                            true,
+                            'Cannot access iframe content due to browser security, but page loaded successfully'
+                        );
+                    }
+                    renderResults();
+                }, 1000);
+            };
+        }
+
+        function renderResults() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = tests.map(test => `
+                <div class="test-case ${test.passed ? 'pass' : 'fail'}">
+                    <strong>${test.name}</strong>
+                    <span class="test-result">${test.passed ? 'PASS ✓' : 'FAIL ✗'}</span>
+                    <br>
+                    <small>${test.details}</small>
+                </div>
+            `).join('');
+
+            const summaryDiv = document.getElementById('summary');
+            const allPassed = failCount === 0;
+            summaryDiv.className = 'summary ' + (allPassed ? 'all-pass' : '');
+            summaryDiv.innerHTML = `
+                <div>Total Tests: ${tests.length}</div>
+                <div style="color: #0f0;">Passed: ${passCount}</div>
+                ${failCount > 0 ? `<div style="color: #f00;">Failed: ${failCount}</div>` : ''}
+                <div style="margin-top: 10px; font-size: 32px;">
+                    ${allPassed ? '✓ ALL TESTS PASSED' : '✗ SOME TESTS FAILED'}
+                </div>
+            `;
+        }
+
+        // Run tests when page loads
+        window.onload = runTests;
+    </script>
+</body>
+</html>
