@@ -1,0 +1,17 @@
+{
+  "name": "hamhock-ui-tests",
+  "version": "1.0.0",
+  "description": "Automated UI tests for Ham Hock Design Quest 3D game",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:video": "playwright test --reporter=html"
+  },
+  "dependencies": {
+    "@fly/sprites": "^0.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}
