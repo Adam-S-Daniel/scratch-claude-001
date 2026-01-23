@@ -3,79 +3,483 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Welcome to my GitHub Pages site">
-    <title>GitHub Pages Site</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Astro Warrior: Dylan's Quest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            text-align: center;
+            position: relative;
+        }
+
+        #gameCanvas {
+            border: 4px solid #0ff;
+            box-shadow: 0 0 20px #0ff;
+            background: #000;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #0ff;
+            font-size: 18px;
+            text-shadow: 2px 2px #000;
+            z-index: 10;
+        }
+
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #f0f;
+            font-size: 36px;
+            text-align: center;
+            display: none;
+            text-shadow: 3px 3px #000;
+            z-index: 20;
+        }
+
+        #title {
+            color: #ff0;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px #f00;
+        }
+
+        #instructions {
+            color: #0ff;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .enemy-name {
+            font-size: 10px;
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Welcome to GitHub Pages</h1>
-            <p class="subtitle">Automated deployment with GitHub Actions</p>
-        </header>
-
-        <main>
-            <section class="hero">
-                <div class="hero-content">
-                    <h2>Your Site is Live!</h2>
-                    <p>This site is automatically deployed using GitHub Actions whenever you push changes to your repository.</p>
-                </div>
-            </section>
-
-            <section class="features">
-                <h2>Features</h2>
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <div class="icon">🚀</div>
-                        <h3>Automated Deployment</h3>
-                        <p>Push to your branch and GitHub Actions handles the rest</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="icon">⚡</div>
-                        <h3>Fast & Reliable</h3>
-                        <p>Powered by GitHub's infrastructure for optimal performance</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="icon">🎨</div>
-                        <h3>Easy to Customize</h3>
-                        <p>Simple HTML and CSS structure ready for your content</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="icon">📱</div>
-                        <h3>Responsive Design</h3>
-                        <p>Looks great on desktop, tablet, and mobile devices</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="getting-started">
-                <h2>Getting Started</h2>
-                <ol>
-                    <li>Edit <code>index.html</code> to customize your content</li>
-                    <li>Modify <code>styles.css</code> to change the appearance</li>
-                    <li>Push your changes to trigger automatic deployment</li>
-                    <li>Visit your GitHub Pages URL to see the updates</li>
-                </ol>
-            </section>
-        </main>
-
-        <footer>
-            <p>Built with ❤️ using GitHub Pages</p>
-            <p class="footer-links">
-                <a href="https://docs.github.com/pages" target="_blank">GitHub Pages Docs</a> |
-                <a href="https://docs.github.com/actions" target="_blank">GitHub Actions Docs</a>
-            </p>
-        </footer>
+    <div id="gameContainer">
+        <div id="title">ASTRO WARRIOR: DYLAN'S QUEST</div>
+        <div id="ui">
+            <div>SCORE: <span id="score">0</span></div>
+            <div>LIVES: <span id="lives">3</span></div>
+            <div>LEVEL: <span id="level">1</span></div>
+        </div>
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        <div id="gameOver">
+            <div>GAME OVER</div>
+            <div style="font-size: 18px; margin-top: 20px;">Press SPACE to restart</div>
+        </div>
+        <div id="instructions">Arrow Keys: Move | SPACE: Shoot</div>
     </div>
 
     <script>
-        // Add current year to footer
-        document.addEventListener('DOMContentLoaded', function() {
-            const footer = document.querySelector('footer p');
-            if (footer) {
-                footer.innerHTML = footer.innerHTML.replace('❤️', `❤️ ${new Date().getFullYear()}`);
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameState = {
+            running: true,
+            score: 0,
+            lives: 3,
+            level: 1,
+            keys: {},
+            lastShot: 0,
+            shootDelay: 250
+        };
+
+        // We Are the World participants (the most recognizable ones)
+        const enemyNames = [
+            'Michael Jackson', 'Lionel Richie', 'Stevie Wonder',
+            'Paul Simon', 'Kenny Rogers', 'James Ingram',
+            'Tina Turner', 'Billy Joel', 'Diana Ross',
+            'Dionne Warwick', 'Willie Nelson', 'Al Jarreau',
+            'Bruce Springsteen', 'Kenny Loggins', 'Steve Perry',
+            'Daryl Hall', 'Huey Lewis', 'Cyndi Lauper',
+            'Kim Carnes', 'Bob Geldof', 'Ray Charles'
+        ];
+
+        // Player (Bob Dylan)
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height - 80,
+            width: 40,
+            height: 40,
+            speed: 5
+        };
+
+        // Arrays for game objects
+        let bullets = [];
+        let enemies = [];
+        let stars = [];
+        let explosions = [];
+
+        // Initialize stars for background
+        for (let i = 0; i < 50; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                speed: Math.random() * 2 + 1,
+                size: Math.random() * 2
+            });
+        }
+
+        // Draw Bob Dylan's face (player)
+        function drawPlayer() {
+            ctx.save();
+
+            // Face
+            ctx.fillStyle = '#ffdbac';
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, 18, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hair (wild and curly - iconic Dylan hair)
+            ctx.fillStyle = '#4a4a4a';
+            ctx.beginPath();
+            ctx.arc(player.x - 15, player.y - 10, 8, 0, Math.PI * 2);
+            ctx.arc(player.x - 10, player.y - 15, 7, 0, Math.PI * 2);
+            ctx.arc(player.x, player.y - 18, 8, 0, Math.PI * 2);
+            ctx.arc(player.x + 10, player.y - 15, 7, 0, Math.PI * 2);
+            ctx.arc(player.x + 15, player.y - 10, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Sunglasses
+            ctx.fillStyle = '#000';
+            ctx.fillRect(player.x - 12, player.y - 3, 10, 6);
+            ctx.fillRect(player.x + 2, player.y - 3, 10, 6);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(player.x - 2, player.y);
+            ctx.lineTo(player.x + 2, player.y);
+            ctx.stroke();
+
+            // Nose
+            ctx.fillStyle = '#d4a574';
+            ctx.beginPath();
+            ctx.moveTo(player.x, player.y + 2);
+            ctx.lineTo(player.x - 3, player.y + 8);
+            ctx.lineTo(player.x + 3, player.y + 8);
+            ctx.fill();
+
+            // Mouth (slight smirk)
+            ctx.strokeStyle = '#8b4513';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y + 10, 6, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+
+            // Ship body underneath
+            ctx.fillStyle = '#0ff';
+            ctx.fillRect(player.x - 20, player.y + 20, 40, 15);
+            ctx.fillStyle = '#00f';
+            ctx.fillRect(player.x - 15, player.y + 25, 30, 8);
+
+            ctx.restore();
+        }
+
+        // Draw enemy face
+        function drawEnemy(enemy) {
+            ctx.save();
+
+            // Different face characteristics for variety
+            const faceIndex = enemy.nameIndex % 5;
+
+            // Face
+            ctx.fillStyle = enemy.color || '#ffd7a8';
+            ctx.beginPath();
+            ctx.arc(enemy.x, enemy.y, 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hair styles vary
+            ctx.fillStyle = ['#000', '#4a2c1a', '#ffeb3b', '#8b4513', '#f4a460'][faceIndex];
+            if (faceIndex === 0) { // Afro (Michael Jackson style)
+                ctx.beginPath();
+                ctx.arc(enemy.x - 12, enemy.y - 8, 7, 0, Math.PI * 2);
+                ctx.arc(enemy.x - 8, enemy.y - 12, 7, 0, Math.PI * 2);
+                ctx.arc(enemy.x, enemy.y - 14, 8, 0, Math.PI * 2);
+                ctx.arc(enemy.x + 8, enemy.y - 12, 7, 0, Math.PI * 2);
+                ctx.arc(enemy.x + 12, enemy.y - 8, 7, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (faceIndex === 1) { // Curly hair
+                ctx.beginPath();
+                for (let i = -12; i <= 12; i += 6) {
+                    ctx.arc(enemy.x + i, enemy.y - 12, 5, 0, Math.PI * 2);
+                }
+                ctx.fill();
+            } else { // Short hair
+                ctx.fillRect(enemy.x - 14, enemy.y - 14, 28, 10);
+            }
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(enemy.x - 6, enemy.y - 2, 2, 0, Math.PI * 2);
+            ctx.arc(enemy.x + 6, enemy.y - 2, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Smile
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(enemy.x, enemy.y + 5, 5, 0.1, Math.PI - 0.1);
+            ctx.stroke();
+
+            // Ship body
+            ctx.fillStyle = '#f0f';
+            ctx.fillRect(enemy.x - 18, enemy.y + 15, 36, 12);
+            ctx.fillStyle = '#f00';
+            ctx.fillRect(enemy.x - 14, enemy.y + 18, 28, 6);
+
+            // Name label
+            ctx.fillStyle = '#fff';
+            ctx.font = '8px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText(enemy.name, enemy.x, enemy.y + 35);
+
+            ctx.restore();
+        }
+
+        // Create enemy
+        function createEnemy() {
+            const nameIndex = Math.floor(Math.random() * enemyNames.length);
+            enemies.push({
+                x: Math.random() * (canvas.width - 40) + 20,
+                y: -30,
+                width: 36,
+                height: 50,
+                speed: 1 + gameState.level * 0.2,
+                name: enemyNames[nameIndex],
+                nameIndex: nameIndex,
+                health: 1
+            });
+        }
+
+        // Create bullet
+        function shoot() {
+            const now = Date.now();
+            if (now - gameState.lastShot > gameState.shootDelay) {
+                bullets.push({
+                    x: player.x,
+                    y: player.y - 20,
+                    width: 4,
+                    height: 12,
+                    speed: 8
+                });
+                gameState.lastShot = now;
+            }
+        }
+
+        // Create explosion effect
+        function createExplosion(x, y) {
+            for (let i = 0; i < 15; i++) {
+                explosions.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    life: 30,
+                    color: ['#ff0', '#f80', '#f00', '#fff'][Math.floor(Math.random() * 4)]
+                });
+            }
+        }
+
+        // Check collision
+        function checkCollision(a, b) {
+            return a.x < b.x + b.width &&
+                   a.x + a.width > b.x &&
+                   a.y < b.y + b.height &&
+                   a.y + a.height > b.y;
+        }
+
+        // Update game
+        function update() {
+            if (!gameState.running) return;
+
+            // Update stars
+            stars.forEach(star => {
+                star.y += star.speed;
+                if (star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+            });
+
+            // Player movement
+            if (gameState.keys['ArrowLeft'] && player.x > 20) {
+                player.x -= player.speed;
+            }
+            if (gameState.keys['ArrowRight'] && player.x < canvas.width - 20) {
+                player.x += player.speed;
+            }
+            if (gameState.keys[' ']) {
+                shoot();
+            }
+
+            // Update bullets
+            bullets = bullets.filter(bullet => {
+                bullet.y -= bullet.speed;
+                return bullet.y > -10;
+            });
+
+            // Update enemies
+            enemies = enemies.filter(enemy => {
+                enemy.y += enemy.speed;
+
+                // Check collision with bullets
+                for (let i = bullets.length - 1; i >= 0; i--) {
+                    if (checkCollision(bullets[i], enemy)) {
+                        bullets.splice(i, 1);
+                        enemy.health--;
+                        if (enemy.health <= 0) {
+                            createExplosion(enemy.x, enemy.y);
+                            gameState.score += 100;
+                            return false;
+                        }
+                    }
+                }
+
+                // Check collision with player
+                if (checkCollision(player, enemy)) {
+                    createExplosion(enemy.x, enemy.y);
+                    gameState.lives--;
+                    if (gameState.lives <= 0) {
+                        gameOver();
+                    }
+                    return false;
+                }
+
+                return enemy.y < canvas.height + 30;
+            });
+
+            // Spawn enemies
+            if (Math.random() < 0.02 + gameState.level * 0.005) {
+                createEnemy();
+            }
+
+            // Update explosions
+            explosions = explosions.filter(exp => {
+                exp.x += exp.vx;
+                exp.y += exp.vy;
+                exp.life--;
+                return exp.life > 0;
+            });
+
+            // Level up
+            if (gameState.score > 0 && gameState.score % 2000 === 0 && enemies.length === 0) {
+                gameState.level++;
+            }
+        }
+
+        // Draw game
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw stars
+            ctx.fillStyle = '#fff';
+            stars.forEach(star => {
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+            });
+
+            // Draw bullets
+            ctx.fillStyle = '#0f0';
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x - 2, bullet.y, bullet.width, bullet.height);
+            });
+
+            // Draw enemies
+            enemies.forEach(enemy => {
+                drawEnemy(enemy);
+            });
+
+            // Draw explosions
+            explosions.forEach(exp => {
+                ctx.fillStyle = exp.color;
+                ctx.globalAlpha = exp.life / 30;
+                ctx.fillRect(exp.x - 2, exp.y - 2, 4, 4);
+                ctx.globalAlpha = 1;
+            });
+
+            // Draw player
+            drawPlayer();
+
+            // Update UI
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('lives').textContent = gameState.lives;
+            document.getElementById('level').textContent = gameState.level;
+        }
+
+        // Game over
+        function gameOver() {
+            gameState.running = false;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        // Reset game
+        function resetGame() {
+            gameState = {
+                running: true,
+                score: 0,
+                lives: 3,
+                level: 1,
+                keys: gameState.keys,
+                lastShot: 0,
+                shootDelay: 250
+            };
+            bullets = [];
+            enemies = [];
+            explosions = [];
+            player.x = canvas.width / 2;
+            player.y = canvas.height - 80;
+            document.getElementById('gameOver').style.display = 'none';
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            gameState.keys[e.key] = true;
+            if (e.key === ' ') {
+                e.preventDefault();
+                if (!gameState.running) {
+                    resetGame();
+                }
             }
         });
+
+        document.addEventListener('keyup', (e) => {
+            gameState.keys[e.key] = false;
+        });
+
+        // Start game
+        gameLoop();
     </script>
 </body>
 </html>
