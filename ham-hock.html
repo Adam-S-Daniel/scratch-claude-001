@@ -255,50 +255,111 @@
 
         @media (max-width: 768px) {
             body {
-                padding: 5px;
-                align-items: flex-start;
+                padding: 0;
+                align-items: stretch;
+                overflow: hidden;
             }
 
             #gameContainer {
-                padding: 15px;
-                margin: 10px auto;
+                padding: 10px;
+                margin: 0;
+                max-width: 100%;
+                border-radius: 0;
+                border: none;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
             }
 
             h1 {
-                font-size: 24px;
+                font-size: 20px;
                 margin-bottom: 5px;
             }
 
             .subtitle {
-                font-size: 14px;
-                margin-bottom: 15px;
-            }
-
-            .options-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-
-            .hock-canvas {
-                height: 300px;
-            }
-
-            .option-btn {
-                padding: 12px;
-                font-size: 13px;
-            }
-
-            .category-label {
-                font-size: 16px;
-                margin-top: 10px;
+                font-size: 12px;
+                margin-bottom: 10px;
             }
 
             #stats {
-                gap: 10px;
+                gap: 5px;
+                padding: 10px;
+                margin-bottom: 10px;
             }
 
             .stat {
                 flex: 1 1 45%;
+            }
+
+            .stat-value {
+                font-size: 18px;
+            }
+
+            .stat-label {
+                font-size: 10px;
+            }
+
+            .viewport-container {
+                display: flex;
+                flex-direction: column;
+                height: calc(100vh - 280px);
+                overflow: hidden;
+            }
+
+            .hock-display {
+                height: 35vh;
+                min-height: 200px;
+                margin: 0;
+                flex-shrink: 0;
+            }
+
+            .hock-canvas {
+                height: 100%;
+            }
+
+            .options-panel {
+                flex: 1;
+                overflow-y: auto;
+                padding-top: 10px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                margin: 10px 0;
+            }
+
+            .option-btn {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .category-label {
+                font-size: 14px;
+                margin-top: 5px;
+                margin-bottom: 5px;
+            }
+
+            .primary-btn {
+                padding: 15px 30px;
+                font-size: 18px;
+                margin: 10px auto;
+            }
+
+            .phase {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .phase.active {
+                display: flex;
+            }
+
+            .story-text {
+                font-size: 14px;
+                padding: 15px;
             }
         }
     </style>
@@ -841,58 +902,70 @@
 
         // Update the 3D view
         function drawHock(containerId) {
-            // Initialize viewer if not exists
-            if (!viewers[containerId]) {
-                initViewer(containerId);
-            }
+            // Wait a tick to ensure container is visible
+            setTimeout(() => {
+                const container = document.getElementById(containerId);
 
-            const viewer = viewers[containerId];
-            const { scene, camera, renderer, hockGroup } = viewer;
+                // Check if container exists and is visible
+                if (!container || container.offsetWidth === 0) {
+                    console.log('Container not ready, retrying...');
+                    setTimeout(() => drawHock(containerId), 100);
+                    return;
+                }
 
-            // Clear existing hock
-            while (hockGroup.children.length > 0) {
-                hockGroup.remove(hockGroup.children[0]);
-            }
+                // Initialize viewer if not exists
+                if (!viewers[containerId]) {
+                    initViewer(containerId);
+                }
 
-            // Create new ham hock
-            const hamHock = createHamHock();
-            hockGroup.add(hamHock);
+                const viewer = viewers[containerId];
+                const { scene, camera, renderer, hockGroup } = viewer;
 
-            // Add accessory
-            const acc = gameState.currentHock.accessory;
-            const sizeMultipliers = {
-                'Dainty': 0.6,
-                'Regular': 0.8,
-                'Hefty': 1.0,
-                'ABSOLUTE UNIT': 1.3,
-                'Theoretical Maximum': 1.6
-            };
-            const size = sizeMultipliers[gameState.currentHock.size] || 0.8;
+                // Clear existing hock
+                while (hockGroup.children.length > 0) {
+                    hockGroup.remove(hockGroup.children[0]);
+                }
 
-            if (acc === 'Bow Tie') {
-                const bowTie = createBowTie(size);
-                hockGroup.add(bowTie);
-            } else if (acc !== 'None') {
-                const accessory = createAccessory(acc, size);
-                hockGroup.add(accessory);
-            }
+                // Create new ham hock
+                const hamHock = createHamHock();
+                hockGroup.add(hamHock);
 
-            // Animation loop
-            function animate() {
-                viewer.animationId = requestAnimationFrame(animate);
+                // Add accessory
+                const acc = gameState.currentHock.accessory;
+                const sizeMultipliers = {
+                    'Dainty': 0.6,
+                    'Regular': 0.8,
+                    'Hefty': 1.0,
+                    'ABSOLUTE UNIT': 1.3,
+                    'Theoretical Maximum': 1.6
+                };
+                const size = sizeMultipliers[gameState.currentHock.size] || 0.8;
 
-                // Rotate the ham hock
-                hockGroup.rotation.y += 0.01;
+                if (acc === 'Bow Tie') {
+                    const bowTie = createBowTie(size);
+                    hockGroup.add(bowTie);
+                } else if (acc !== 'None') {
+                    const accessory = createAccessory(acc, size);
+                    hockGroup.add(accessory);
+                }
 
-                renderer.render(scene, camera);
-            }
+                // Animation loop
+                function animate() {
+                    viewer.animationId = requestAnimationFrame(animate);
 
-            // Stop previous animation if exists
-            if (viewer.animationId) {
-                cancelAnimationFrame(viewer.animationId);
-            }
+                    // Rotate the ham hock
+                    hockGroup.rotation.y += 0.01;
 
-            animate();
+                    renderer.render(scene, camera);
+                }
+
+                // Stop previous animation if exists
+                if (viewer.animationId) {
+                    cancelAnimationFrame(viewer.animationId);
+                }
+
+                animate();
+            }, 10);
         }
 
         function calculateScore() {
@@ -1005,6 +1078,7 @@
             resetHock();
             renderOptions();
             showPhase('designPhase');
+            drawHock('hockCanvas');
         }
 
         function resetHock() {
@@ -1033,9 +1107,6 @@
             renderOptions();
             drawHock('hockCanvas');
         }
-
-        // Initialize
-        drawHock('hockCanvas');
     </script>
 </body>
 </html>
