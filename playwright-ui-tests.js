@@ -166,10 +166,30 @@ test.describe('Ham Hock 3D UI Tests', () => {
         await page.waitForTimeout(3000);
         await page.screenshot({ path: 'screenshots/mobile-01-landing.png' });
 
-        // Start game
-        await page.click('button.primary-btn');
-        console.log('✓ Started game on mobile');
-        await page.waitForTimeout(3000);
+        // Test button click on mobile (critical fix verification)
+        console.log('Testing "BEGIN MY DESTINY" button click...');
+
+        // Verify button is visible
+        const button = page.locator('#startGameBtn');
+        await expect(button).toBeVisible();
+        console.log('✓ Button is visible');
+
+        // Click button
+        await button.click();
+        console.log('✓ Button clicked');
+
+        // Wait for phase transition
+        await page.waitForTimeout(500);
+
+        // Verify design phase is now active
+        const designPhaseActive = await page.evaluate(() => {
+            const designPhase = document.getElementById('designPhase');
+            return designPhase && designPhase.classList.contains('active');
+        });
+        expect(designPhaseActive).toBe(true);
+        console.log('✓ Design phase activated (button works!)');
+
+        await page.waitForTimeout(2500);
         await page.screenshot({ path: 'screenshots/mobile-02-game-start.png' });
 
         // Verify mobile layout

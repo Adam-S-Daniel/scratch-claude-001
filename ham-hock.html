@@ -400,7 +400,7 @@
                 <br>
                 <p><em>Only one way to find out...</em></p>
             </div>
-            <button class="primary-btn" onclick="startGame()">BEGIN MY DESTINY</button>
+            <button class="primary-btn" id="startGameBtn">BEGIN MY DESTINY</button>
         </div>
 
         <!-- Design Phase -->
@@ -1103,9 +1103,57 @@
         }
 
         function startGame() {
+            console.log('startGame() called');
+
+            // Check if Three.js is loaded
+            if (typeof THREE === 'undefined') {
+                console.error('THREE.js not loaded!');
+                alert('Loading 3D engine... Please wait and try again.');
+                return;
+            }
+
+            console.log('Showing design phase...');
             showPhase('designPhase');
+
+            console.log('Rendering options...');
             renderOptions();
-            drawHock('hockCanvas');
+
+            // Give the phase transition time to complete before initializing 3D
+            console.log('Initializing 3D viewer...');
+            setTimeout(() => {
+                drawHock('hockCanvas');
+            }, 100);
+        }
+
+        // Initialize on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM loaded, Three.js available:', typeof THREE !== 'undefined');
+
+                // Add touch event support for mobile
+                const startButton = document.getElementById('startGameBtn');
+                if (startButton) {
+                    // Remove onclick to prevent double-firing
+                    startButton.removeAttribute('onclick');
+
+                    // Add both click and touchend handlers
+                    startButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        console.log('Button clicked');
+                        startGame();
+                    });
+
+                    startButton.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        console.log('Button touched');
+                        startGame();
+                    }, { passive: false });
+
+                    console.log('Start button handlers attached');
+                }
+            });
+        } else {
+            console.log('DOM already loaded');
         }
     </script>
 </body>
