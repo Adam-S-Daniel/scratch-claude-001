@@ -70,6 +70,34 @@
             margin-top: 10px;
         }
 
+        #touchButtons {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .touchButton {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 255, 0.3);
+            border: 2px solid #0ff;
+            border-radius: 10px;
+            color: #0ff;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .touchButton:active {
+            background: rgba(0, 255, 255, 0.6);
+        }
+
         .enemy-name {
             font-size: 10px;
             color: #fff;
@@ -87,9 +115,12 @@
         <canvas id="gameCanvas" width="400" height="600"></canvas>
         <div id="gameOver">
             <div>GAME OVER</div>
-            <div style="font-size: 18px; margin-top: 20px;">Press SPACE to restart</div>
+            <div style="font-size: 18px; margin-top: 20px;">Tap to restart</div>
         </div>
-        <div id="instructions">Arrow Keys: Move | SPACE: Shoot</div>
+        <div id="instructions">Touch/Drag: Move | Tap: Shoot | Arrow Keys & Space also work</div>
+        <div id="touchButtons">
+            <div class="touchButton" id="shootButton">🔥</div>
+        </div>
     </div>
 
     <script>
@@ -107,16 +138,146 @@
             shootDelay: 250
         };
 
-        // We Are the World participants (the most recognizable ones)
-        const enemyNames = [
-            'Michael Jackson', 'Lionel Richie', 'Stevie Wonder',
-            'Paul Simon', 'Kenny Rogers', 'James Ingram',
-            'Tina Turner', 'Billy Joel', 'Diana Ross',
-            'Dionne Warwick', 'Willie Nelson', 'Al Jarreau',
-            'Bruce Springsteen', 'Kenny Loggins', 'Steve Perry',
-            'Daryl Hall', 'Huey Lewis', 'Cyndi Lauper',
-            'Kim Carnes', 'Bob Geldof', 'Ray Charles'
-        ];
+        // We Are the World participants with distinctive features
+        const artistData = {
+            'Michael Jackson': {
+                skin: '#c4966f',
+                hair: '#000',
+                hairStyle: 'jheri',
+                glasses: true,
+                features: 'smooth'
+            },
+            'Lionel Richie': {
+                skin: '#8b6f47',
+                hair: '#000',
+                hairStyle: 'afro',
+                mustache: true,
+                features: 'friendly'
+            },
+            'Stevie Wonder': {
+                skin: '#6b4423',
+                hair: '#000',
+                hairStyle: 'braids',
+                glasses: true,
+                features: 'smiling'
+            },
+            'Diana Ross': {
+                skin: '#9d7a54',
+                hair: '#000',
+                hairStyle: 'bigCurly',
+                features: 'glamorous'
+            },
+            'Ray Charles': {
+                skin: '#5c4033',
+                hair: '#3a3a3a',
+                hairStyle: 'short',
+                glasses: true,
+                features: 'legend'
+            },
+            'Tina Turner': {
+                skin: '#8b6f47',
+                hair: '#4a2f1a',
+                hairStyle: 'spiky',
+                features: 'fierce'
+            },
+            'Bruce Springsteen': {
+                skin: '#f4d4b0',
+                hair: '#3a2010',
+                hairStyle: 'bandana',
+                features: 'rugged'
+            },
+            'Cyndi Lauper': {
+                skin: '#ffd7b5',
+                hair: '#ff6b9d',
+                hairStyle: 'spikyColor',
+                features: 'wild'
+            },
+            'Willie Nelson': {
+                skin: '#e8c5a0',
+                hair: '#8b4513',
+                hairStyle: 'long',
+                beard: true,
+                headband: true,
+                features: 'wise'
+            },
+            'Kenny Rogers': {
+                skin: '#f0d5b5',
+                hair: '#e8e8e8',
+                hairStyle: 'short',
+                beard: true,
+                features: 'distinguished'
+            },
+            'Paul Simon': {
+                skin: '#f5d7b8',
+                hair: '#5a4a3a',
+                hairStyle: 'balding',
+                features: 'intellectual'
+            },
+            'Billy Joel': {
+                skin: '#f0d0a8',
+                hair: '#2a1a0a',
+                hairStyle: 'short',
+                features: 'piano'
+            },
+            'Huey Lewis': {
+                skin: '#f4d4b0',
+                hair: '#3a2a1a',
+                hairStyle: 'short',
+                features: 'rock'
+            },
+            'Daryl Hall': {
+                skin: '#f5d7b8',
+                hair: '#d4a76a',
+                hairStyle: 'blonde',
+                features: 'soul'
+            },
+            'Steve Perry': {
+                skin: '#f0d0a8',
+                hair: '#1a0a00',
+                hairStyle: 'curly',
+                features: 'journey'
+            },
+            'Bob Geldof': {
+                skin: '#f8e0c0',
+                hair: '#8b7355',
+                hairStyle: 'messy',
+                features: 'activist'
+            },
+            'Kim Carnes': {
+                skin: '#f5d7b8',
+                hair: '#c4a76a',
+                hairStyle: 'blondeCurly',
+                features: 'singer'
+            },
+            'James Ingram': {
+                skin: '#5c4033',
+                hair: '#000',
+                hairStyle: 'short',
+                mustache: true,
+                features: 'powerful'
+            },
+            'Al Jarreau': {
+                skin: '#7d5f47',
+                hair: '#000',
+                hairStyle: 'short',
+                features: 'jazz'
+            },
+            'Dionne Warwick': {
+                skin: '#9d7a54',
+                hair: '#000',
+                hairStyle: 'styled',
+                features: 'elegant'
+            },
+            'Kenny Loggins': {
+                skin: '#f0d0a8',
+                hair: '#c4a76a',
+                hairStyle: 'blonde',
+                beard: true,
+                features: 'songwriter'
+            }
+        };
+
+        const enemyNames = Object.keys(artistData);
 
         // Player (Bob Dylan)
         const player = {
@@ -202,48 +363,192 @@
         function drawEnemy(enemy) {
             ctx.save();
 
-            // Different face characteristics for variety
-            const faceIndex = enemy.nameIndex % 5;
+            const artist = artistData[enemy.name];
+            if (!artist) return;
 
-            // Face
-            ctx.fillStyle = enemy.color || '#ffd7a8';
+            // Face with appropriate skin tone
+            ctx.fillStyle = artist.skin;
             ctx.beginPath();
             ctx.arc(enemy.x, enemy.y, 15, 0, Math.PI * 2);
             ctx.fill();
 
-            // Hair styles vary
-            ctx.fillStyle = ['#000', '#4a2c1a', '#ffeb3b', '#8b4513', '#f4a460'][faceIndex];
-            if (faceIndex === 0) { // Afro (Michael Jackson style)
-                ctx.beginPath();
-                ctx.arc(enemy.x - 12, enemy.y - 8, 7, 0, Math.PI * 2);
-                ctx.arc(enemy.x - 8, enemy.y - 12, 7, 0, Math.PI * 2);
-                ctx.arc(enemy.x, enemy.y - 14, 8, 0, Math.PI * 2);
-                ctx.arc(enemy.x + 8, enemy.y - 12, 7, 0, Math.PI * 2);
-                ctx.arc(enemy.x + 12, enemy.y - 8, 7, 0, Math.PI * 2);
-                ctx.fill();
-            } else if (faceIndex === 1) { // Curly hair
-                ctx.beginPath();
-                for (let i = -12; i <= 12; i += 6) {
-                    ctx.arc(enemy.x + i, enemy.y - 12, 5, 0, Math.PI * 2);
-                }
-                ctx.fill();
-            } else { // Short hair
-                ctx.fillRect(enemy.x - 14, enemy.y - 14, 28, 10);
+            // Hair styles based on actual appearance
+            ctx.fillStyle = artist.hair;
+
+            switch(artist.hairStyle) {
+                case 'jheri': // Michael Jackson's jheri curl
+                    ctx.beginPath();
+                    for (let i = -14; i <= 14; i += 4) {
+                        for (let j = -16; j <= -8; j += 4) {
+                            ctx.arc(enemy.x + i, enemy.y + j, 4, 0, Math.PI * 2);
+                        }
+                    }
+                    ctx.fill();
+                    break;
+
+                case 'afro': // Lionel Richie
+                    ctx.beginPath();
+                    ctx.arc(enemy.x - 12, enemy.y - 8, 7, 0, Math.PI * 2);
+                    ctx.arc(enemy.x - 8, enemy.y - 12, 7, 0, Math.PI * 2);
+                    ctx.arc(enemy.x, enemy.y - 14, 8, 0, Math.PI * 2);
+                    ctx.arc(enemy.x + 8, enemy.y - 12, 7, 0, Math.PI * 2);
+                    ctx.arc(enemy.x + 12, enemy.y - 8, 7, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+
+                case 'braids': // Stevie Wonder
+                    for (let i = -12; i <= 12; i += 6) {
+                        ctx.fillRect(enemy.x + i - 1, enemy.y - 16, 2, 12);
+                    }
+                    break;
+
+                case 'bigCurly': // Diana Ross
+                    ctx.beginPath();
+                    for (let i = -16; i <= 16; i += 4) {
+                        ctx.arc(enemy.x + i, enemy.y - 12, 6, 0, Math.PI * 2);
+                    }
+                    for (let i = -12; i <= 12; i += 6) {
+                        ctx.arc(enemy.x + i, enemy.y - 16, 5, 0, Math.PI * 2);
+                    }
+                    ctx.fill();
+                    break;
+
+                case 'spiky': // Tina Turner
+                    ctx.beginPath();
+                    for (let i = -14; i <= 14; i += 4) {
+                        ctx.moveTo(enemy.x + i, enemy.y - 8);
+                        ctx.lineTo(enemy.x + i, enemy.y - 18);
+                        ctx.lineTo(enemy.x + i + 2, enemy.y - 8);
+                    }
+                    ctx.fill();
+                    break;
+
+                case 'bandana': // Bruce Springsteen
+                    ctx.fillRect(enemy.x - 14, enemy.y - 14, 28, 8);
+                    ctx.fillStyle = '#c41e3a';
+                    ctx.fillRect(enemy.x - 15, enemy.y - 12, 30, 4);
+                    break;
+
+                case 'spikyColor': // Cyndi Lauper
+                    ctx.beginPath();
+                    for (let i = -14; i <= 14; i += 5) {
+                        ctx.moveTo(enemy.x + i, enemy.y - 8);
+                        ctx.lineTo(enemy.x + i + 1, enemy.y - 16);
+                        ctx.lineTo(enemy.x + i + 3, enemy.y - 8);
+                    }
+                    ctx.fill();
+                    break;
+
+                case 'long': // Willie Nelson
+                    ctx.fillRect(enemy.x - 14, enemy.y - 14, 28, 8);
+                    ctx.fillRect(enemy.x - 16, enemy.y - 6, 4, 12);
+                    ctx.fillRect(enemy.x + 12, enemy.y - 6, 4, 12);
+                    break;
+
+                case 'balding': // Paul Simon
+                    ctx.beginPath();
+                    ctx.arc(enemy.x - 10, enemy.y - 8, 5, 0, Math.PI * 2);
+                    ctx.arc(enemy.x + 10, enemy.y - 8, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+
+                case 'blonde':
+                case 'blondeCurly':
+                    ctx.beginPath();
+                    for (let i = -12; i <= 12; i += 5) {
+                        ctx.arc(enemy.x + i, enemy.y - 12, 5, 0, Math.PI * 2);
+                    }
+                    ctx.fill();
+                    break;
+
+                case 'curly':
+                    ctx.beginPath();
+                    for (let i = -12; i <= 12; i += 4) {
+                        ctx.arc(enemy.x + i, enemy.y - 13, 5, 0, Math.PI * 2);
+                    }
+                    ctx.fill();
+                    break;
+
+                case 'messy':
+                    ctx.beginPath();
+                    for (let i = -12; i <= 12; i += 3) {
+                        ctx.lineTo(enemy.x + i, enemy.y - 10 - Math.random() * 6);
+                    }
+                    ctx.lineTo(enemy.x - 12, enemy.y - 8);
+                    ctx.fill();
+                    break;
+
+                case 'styled':
+                    ctx.fillRect(enemy.x - 14, enemy.y - 14, 28, 10);
+                    ctx.beginPath();
+                    ctx.arc(enemy.x - 12, enemy.y - 10, 4, 0, Math.PI * 2);
+                    ctx.arc(enemy.x + 12, enemy.y - 10, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+
+                default: // short
+                    ctx.fillRect(enemy.x - 14, enemy.y - 14, 28, 10);
             }
 
-            // Eyes
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(enemy.x - 6, enemy.y - 2, 2, 0, Math.PI * 2);
-            ctx.arc(enemy.x + 6, enemy.y - 2, 2, 0, Math.PI * 2);
-            ctx.fill();
+            // Headband (Willie Nelson)
+            if (artist.headband) {
+                ctx.fillStyle = '#c41e3a';
+                ctx.fillRect(enemy.x - 15, enemy.y - 10, 30, 3);
+            }
 
-            // Smile
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 1.5;
+            // Sunglasses
+            if (artist.glasses) {
+                ctx.fillStyle = '#000';
+                ctx.fillRect(enemy.x - 12, enemy.y - 3, 9, 5);
+                ctx.fillRect(enemy.x + 3, enemy.y - 3, 9, 5);
+                ctx.strokeStyle = '#222';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(enemy.x - 3, enemy.y);
+                ctx.lineTo(enemy.x + 3, enemy.y);
+                ctx.stroke();
+            } else {
+                // Eyes
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(enemy.x - 6, enemy.y - 2, 2, 0, Math.PI * 2);
+                ctx.arc(enemy.x + 6, enemy.y - 2, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Mustache
+            if (artist.mustache) {
+                ctx.fillStyle = artist.hair;
+                ctx.fillRect(enemy.x - 8, enemy.y + 4, 7, 3);
+                ctx.fillRect(enemy.x + 1, enemy.y + 4, 7, 3);
+            }
+
+            // Beard
+            if (artist.beard) {
+                ctx.fillStyle = artist.hair;
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y + 10, 8, 0, Math.PI);
+                ctx.fill();
+            }
+
+            // Nose
+            ctx.fillStyle = artist.skin;
+            ctx.globalAlpha = 0.6;
             ctx.beginPath();
-            ctx.arc(enemy.x, enemy.y + 5, 5, 0.1, Math.PI - 0.1);
-            ctx.stroke();
+            ctx.moveTo(enemy.x, enemy.y + 2);
+            ctx.lineTo(enemy.x - 2, enemy.y + 6);
+            ctx.lineTo(enemy.x + 2, enemy.y + 6);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Smile (if no beard)
+            if (!artist.beard) {
+                ctx.strokeStyle = '#8b4513';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y + 8, 5, 0.1, Math.PI - 0.1);
+                ctx.stroke();
+            }
 
             // Ship body
             ctx.fillStyle = '#f0f';
@@ -262,15 +567,14 @@
 
         // Create enemy
         function createEnemy() {
-            const nameIndex = Math.floor(Math.random() * enemyNames.length);
+            const name = enemyNames[Math.floor(Math.random() * enemyNames.length)];
             enemies.push({
                 x: Math.random() * (canvas.width - 40) + 20,
                 y: -30,
                 width: 36,
                 height: 50,
                 speed: 1 + gameState.level * 0.2,
-                name: enemyNames[nameIndex],
-                nameIndex: nameIndex,
+                name: name,
                 health: 1
             });
         }
@@ -477,6 +781,88 @@
         document.addEventListener('keyup', (e) => {
             gameState.keys[e.key] = false;
         });
+
+        // Touch controls
+        let touchActive = false;
+        let touchX = 0;
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!gameState.running) {
+                resetGame();
+                return;
+            }
+
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            touchX = touch.clientX - rect.left;
+            touchActive = true;
+            shoot(); // Shoot on touch
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!touchActive || !gameState.running) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            touchX = (touch.clientX - rect.left) * (canvas.width / rect.width);
+
+            // Move player to touch position
+            player.x = Math.max(20, Math.min(canvas.width - 20, touchX));
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            touchActive = false;
+        });
+
+        // Mouse controls (similar to touch for desktop testing)
+        let mouseDown = false;
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (!gameState.running) {
+                resetGame();
+                return;
+            }
+            mouseDown = true;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            player.x = Math.max(20, Math.min(canvas.width - 20, mouseX));
+            shoot();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!mouseDown || !gameState.running) return;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            player.x = Math.max(20, Math.min(canvas.width - 20, mouseX));
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            mouseDown = false;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            mouseDown = false;
+        });
+
+        // Shoot button
+        const shootButton = document.getElementById('shootButton');
+        shootButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameState.running) shoot();
+        });
+
+        shootButton.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            if (gameState.running) shoot();
+        });
+
+        // Prevent scrolling on mobile
+        document.body.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
 
         // Start game
         gameLoop();
