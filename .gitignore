@@ -6,12 +6,17 @@ test-*.log
 coverage/
 .nyc_output/
 
-# Screenshots and recordings from tests
+# Screenshots and recordings from tests (local only)
 screenshots/
 recordings/
+
+# Video formats (except in test-videos/ which is committed)
 *.mp4
 *.webm
 *.mov
+!test-videos/*.mp4
+!test-videos/*.webm
+!test-videos/*.mov
 
 # Browser automation artifacts
 playwright-report/

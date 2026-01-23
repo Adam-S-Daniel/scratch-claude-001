@@ -2,6 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
+    paths-ignore:
+      - 'test-videos/**'
+      - '**.md'
   workflow_dispatch:
 
 permissions:
