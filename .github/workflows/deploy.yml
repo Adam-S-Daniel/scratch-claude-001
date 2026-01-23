@@ -2,10 +2,6 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
-      - master
-      - claude/setup-github-pages-ZCksi
   workflow_dispatch:
 
 permissions:
