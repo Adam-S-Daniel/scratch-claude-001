@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ham Hock Design Quest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #8b4513 0%, #d2691e 50%, #8b4513 100%);
+            font-family: 'Georgia', serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #gameContainer {
+            background: linear-gradient(145deg, #fff5ee, #ffe4e1);
+            border: 5px solid #8b4513;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            color: #8b0000;
+            font-size: 42px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        #stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(139, 69, 19, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+            margin: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #8b0000;
+        }
+
+        .phase {
+            display: none;
+        }
+
+        .phase.active {
+            display: block;
+        }
+
+        .hock-display {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .hock-canvas {
+            background: #fff;
+            border: 3px solid #8b4513;
+            border-radius: 15px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .option-btn {
+            background: linear-gradient(145deg, #ff69b4, #ff1493);
+            border: 3px solid #c71585;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .option-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(255, 20, 147, 0.5);
+        }
+
+        .option-btn.selected {
+            background: linear-gradient(145deg, #ffd700, #ffed4e);
+            border-color: #daa520;
+            color: #000;
+        }
+
+        .option-btn.locked {
+            background: #999;
+            border-color: #666;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .primary-btn {
+            background: linear-gradient(145deg, #32cd32, #228b22);
+            border: 3px solid #006400;
+            border-radius: 15px;
+            padding: 20px 40px;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .primary-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 30px rgba(50, 205, 50, 0.5);
+        }
+
+        .judge-panel {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .judge {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 5px solid #8b4513;
+        }
+
+        .judge-name {
+            font-weight: bold;
+            color: #8b0000;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .judge-comment {
+            font-style: italic;
+            color: #333;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .score-display {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .category-label {
+            font-weight: bold;
+            color: #8b4513;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 18px;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 5px;
+        }
+
+        .story-text {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            line-height: 1.8;
+            font-size: 16px;
+            border-left: 5px solid #8b0000;
+        }
+
+        .home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .home-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="home-btn">← Home</a>
+
+    <div id="gameContainer">
+        <h1>🍖 HAM HOCK DESIGN QUEST 🍖</h1>
+        <div class="subtitle">The Ultimate Culinary Ankle Adventure</div>
+
+        <div id="stats">
+            <div class="stat">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Prestige</div>
+                <div class="stat-value" id="prestige">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Hocks Created</div>
+                <div class="stat-value" id="hocksCreated">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Total Score</div>
+                <div class="stat-value" id="totalScore">0</div>
+            </div>
+        </div>
+
+        <!-- Intro Phase -->
+        <div id="introPhase" class="phase active">
+            <div class="story-text">
+                <p style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Welcome, Aspiring Ham Hock Artisan!</p>
+                <p>In a world where pig ankles reign supreme, where collagen is currency and mouthfeel is everything, you stand at the precipice of greatness. The International Guild of Ham Hock Designers has selected YOU to carry on the ancient tradition of turning unremarkable joints into objects of culinary desire.</p>
+                <br>
+                <p>Your journey begins at the bottom - with nothing but a raw hock, a dream, and an inexplicable amount of rhinestones. Will you rise through the ranks to become the Master of Metatarsals? The Sultan of Swine Ankles? The Picasso of Pig Knuckles?</p>
+                <br>
+                <p><em>Only one way to find out...</em></p>
+            </div>
+            <button class="primary-btn" onclick="startGame()">BEGIN MY DESTINY</button>
+        </div>
+
+        <!-- Design Phase -->
+        <div id="designPhase" class="phase">
+            <h2 style="text-align: center; color: #8b4513; margin-bottom: 20px;">Design Your Masterpiece</h2>
+
+            <div class="hock-display">
+                <canvas id="hockCanvas" class="hock-canvas" width="400" height="300"></canvas>
+            </div>
+
+            <div class="category-label">Size & Form</div>
+            <div class="options-grid" id="sizeOptions"></div>
+
+            <div class="category-label">Color & Finish</div>
+            <div class="options-grid" id="colorOptions"></div>
+
+            <div class="category-label">Accessories</div>
+            <div class="options-grid" id="accessoryOptions"></div>
+
+            <div class="category-label">Seasoning Philosophy</div>
+            <div class="options-grid" id="seasoningOptions"></div>
+
+            <button class="primary-btn" onclick="submitHock()">PRESENT TO JUDGES</button>
+        </div>
+
+        <!-- Judging Phase -->
+        <div id="judgingPhase" class="phase">
+            <h2 style="text-align: center; color: #8b4513; margin-bottom: 20px;">The Judgment</h2>
+
+            <div class="hock-display">
+                <canvas id="judgingCanvas" class="hock-canvas" width="400" height="300"></canvas>
+            </div>
+
+            <div class="judge-panel" id="judgePanel"></div>
+
+            <div class="score-display" id="finalScore"></div>
+
+            <button class="primary-btn" onclick="nextRound()">CONTINUE</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        const gameState = {
+            level: 1,
+            prestige: 0,
+            hocksCreated: 0,
+            totalScore: 0,
+            currentHock: {
+                size: 'Regular',
+                color: 'Natural Pink',
+                accessory: 'None',
+                seasoning: 'Classic Salt & Pepper'
+            },
+            unlockedOptions: {
+                sizes: ['Dainty', 'Regular'],
+                colors: ['Natural Pink', 'Hickory Smoked'],
+                accessories: ['None', 'Bow Tie'],
+                seasonings: ['Classic Salt & Pepper', 'Cajun Spice']
+            }
+        };
+
+        // Game Data
+        const gameData = {
+            sizes: {
+                'Dainty': { unlockLevel: 1, prestige: 0 },
+                'Regular': { unlockLevel: 1, prestige: 0 },
+                'Hefty': { unlockLevel: 3, prestige: 50 },
+                'ABSOLUTE UNIT': { unlockLevel: 5, prestige: 150 },
+                'Theoretical Maximum': { unlockLevel: 8, prestige: 300 }
+            },
+            colors: {
+                'Natural Pink': { unlockLevel: 1, prestige: 0 },
+                'Hickory Smoked': { unlockLevel: 1, prestige: 0 },
+                'Honey Glazed': { unlockLevel: 2, prestige: 30 },
+                'Maple Bourbon': { unlockLevel: 4, prestige: 100 },
+                'Iridescent Shimmer': { unlockLevel: 6, prestige: 200 },
+                'Void Black': { unlockLevel: 7, prestige: 250 },
+                'Ethereal Glow': { unlockLevel: 10, prestige: 500 }
+            },
+            accessories: {
+                'None': { unlockLevel: 1, prestige: 0 },
+                'Bow Tie': { unlockLevel: 1, prestige: 0 },
+                'Top Hat': { unlockLevel: 2, prestige: 40 },
+                'Monocle': { unlockLevel: 3, prestige: 75 },
+                'Gold Chain': { unlockLevel: 4, prestige: 120 },
+                'Rhinestone Bedazzle': { unlockLevel: 5, prestige: 180 },
+                'Crown': { unlockLevel: 7, prestige: 280 },
+                'Tiny Tuxedo': { unlockLevel: 9, prestige: 450 }
+            },
+            seasonings: {
+                'Classic Salt & Pepper': { unlockLevel: 1, prestige: 0 },
+                'Cajun Spice': { unlockLevel: 1, prestige: 0 },
+                'Herbs de Provence': { unlockLevel: 2, prestige: 35 },
+                'Memphis BBQ Rub': { unlockLevel: 3, prestige: 80 },
+                'Unicorn Tears': { unlockLevel: 5, prestige: 160 },
+                'Existential Dread': { unlockLevel: 6, prestige: 220 },
+                'Pure Umami': { unlockLevel: 8, prestige: 350 },
+                'Concept of Time': { unlockLevel: 11, prestige: 600 }
+            }
+        };
+
+        const judges = [
+            {
+                name: "Gordon Ramsey's Ghost",
+                getComment: (hock, score) => {
+                    if (score > 80) return "IT'S... IT'S... BLOODY BRILLIANT! This ham hock has more soul than most living beings!";
+                    if (score > 60) return "You know what? It's decent. I've seen worse from professional chefs. MUCH worse.";
+                    if (score > 40) return "This ham hock is so mediocre, it hurts my ethereal form! DO BETTER!";
+                    return "WHAT IS THIS?! My grandmother's ghost could design a better ham hock, and she's terrified of pork!";
+                }
+            },
+            {
+                name: "Madame Françoise Le Cochon",
+                title: "Pretentious French Food Critic",
+                getComment: (hock, score) => {
+                    if (score > 80) return "Magnifique! Ze mouthfeel potential is extraordinary! I weep at ze beauty of zis ankle!";
+                    if (score > 60) return "Eet is... acceptable. But where is ze je ne sais quoi? Ze passion? Ze DRAMA?";
+                    if (score > 40) return "Zis ham hock, she has no... how you say... sophistication. Très disappointing.";
+                    return "Mon Dieu! Zis is an insult to pork everywhere! I am deeply offended on behalf of all French pigs!";
+                }
+            },
+            {
+                name: "Granny Pearl",
+                title: "Someone's Grandma from Tennessee",
+                getComment: (hock, score) => {
+                    if (score > 80) return "Well bless your heart! This reminds me of the hocks my meemaw used to make. *wipes tear* Just beautiful, honey.";
+                    if (score > 60) return "It's real nice, sugar. Needs more seasoning, but my Frank would've eaten three of these.";
+                    if (score > 40) return "Oh sweetie... this ain't it. You need to come by my house for some proper lessons.";
+                    return "Child, I'm gonna be honest with you - I wouldn't serve this to my worst enemy's dog. And I hate that dog.";
+                }
+            },
+            {
+                name: "Chad the Vegan Influencer",
+                title: "Confused but Trying His Best",
+                getComment: (hock, score) => {
+                    if (score > 80) return "I... I don't understand why I'm here, but this is... beautiful? Like, artistically? The collagen must be... I'm so confused.";
+                    if (score > 60) return "Okay so like, I can't eat this obviously, but the aesthetic is actually pretty cool? Good job on the... pig ankle... thing?";
+                    if (score > 40) return "Dude, I literally have no frame of reference for this. Is this good? It looks sad. The pig was probably sad. I'm sad.";
+                    return "This whole situation is making me uncomfortable. Can someone explain why I'm judging meat? My followers are going to be so confused.";
+                }
+            },
+            {
+                name: "Edmund the Peasant",
+                title: "Ghost of a Medieval Peasant",
+                getComment: (hock, score) => {
+                    if (score > 80) return "By the saints! In my day, we would've fought wars over such a magnificent hock! GLORIOUS!";
+                    if (score > 60) return "Tis a fine hock, though I've not seen such strange adornments. What be this 'rhinestone' of which ye speak?";
+                    if (score > 40) return "Me lord would have thrown this to the dogs. And then thrown the dogs to the wolves. Disappointing.";
+                    return "I died of starvation in 1347, and even I wouldn't touch this cursed ankle meat. BEGONE!";
+                }
+            }
+        ];
+
+        // Initialize UI
+        function renderOptions() {
+            renderCategory('sizeOptions', 'sizes', gameData.sizes);
+            renderCategory('colorOptions', 'colors', gameData.colors);
+            renderCategory('accessoryOptions', 'accessories', gameData.accessories);
+            renderCategory('seasoningOptions', 'seasonings', gameData.seasonings);
+            updateStats();
+        }
+
+        function renderCategory(elementId, category, data) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            for (const [name, requirements] of Object.entries(data)) {
+                const isUnlocked = gameState.level >= requirements.unlockLevel &&
+                                  gameState.prestige >= requirements.prestige;
+                const isSelected = gameState.currentHock[category.slice(0, -1)] === name;
+
+                const btn = document.createElement('button');
+                btn.className = 'option-btn' +
+                               (isSelected ? ' selected' : '') +
+                               (!isUnlocked ? ' locked' : '');
+                btn.textContent = name;
+
+                if (!isUnlocked) {
+                    btn.textContent += ` 🔒 (Lvl ${requirements.unlockLevel}, ${requirements.prestige} prestige)`;
+                }
+
+                if (isUnlocked) {
+                    btn.onclick = () => selectOption(category.slice(0, -1), name);
+                }
+
+                container.appendChild(btn);
+            }
+        }
+
+        function selectOption(category, value) {
+            gameState.currentHock[category] = value;
+            renderOptions();
+            drawHock('hockCanvas');
+        }
+
+        function drawHock(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // Get size multiplier
+            const sizeMultipliers = {
+                'Dainty': 0.6,
+                'Regular': 0.8,
+                'Hefty': 1.0,
+                'ABSOLUTE UNIT': 1.3,
+                'Theoretical Maximum': 1.6
+            };
+            const size = sizeMultipliers[gameState.currentHock.size] || 0.8;
+
+            // Draw ham hock body
+            ctx.save();
+            ctx.translate(centerX, centerY);
+
+            // Get color
+            const colors = {
+                'Natural Pink': '#FFB6C1',
+                'Hickory Smoked': '#8B4513',
+                'Honey Glazed': '#FFD700',
+                'Maple Bourbon': '#D2691E',
+                'Iridescent Shimmer': 'linear',
+                'Void Black': '#000000',
+                'Ethereal Glow': '#E0FFFF'
+            };
+
+            let hockColor = colors[gameState.currentHock.color] || '#FFB6C1';
+
+            // Main hock shape
+            ctx.fillStyle = hockColor === 'linear' ? '#FF69B4' : hockColor;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 80 * size, 60 * size, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Add texture/lines
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.lineWidth = 2;
+            for (let i = -3; i <= 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * 20 * size, -60 * size);
+                ctx.lineTo(i * 20 * size, 60 * size);
+                ctx.stroke();
+            }
+
+            // Bone sticking out
+            ctx.fillStyle = '#FFF8DC';
+            ctx.fillRect(-10 * size, -70 * size, 20 * size, 30 * size);
+            ctx.beginPath();
+            ctx.arc(0, -70 * size, 12 * size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Accessories
+            const acc = gameState.currentHock.accessory;
+
+            if (acc === 'Bow Tie') {
+                ctx.fillStyle = '#FF0000';
+                ctx.beginPath();
+                ctx.moveTo(-30 * size, 0);
+                ctx.lineTo(-15 * size, -10 * size);
+                ctx.lineTo(0, 0);
+                ctx.lineTo(-15 * size, 10 * size);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(30 * size, 0);
+                ctx.lineTo(15 * size, -10 * size);
+                ctx.lineTo(0, 0);
+                ctx.lineTo(15 * size, 10 * size);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillRect(-8 * size, -8 * size, 16 * size, 16 * size);
+            }
+
+            if (acc === 'Top Hat') {
+                ctx.fillStyle = '#000';
+                ctx.fillRect(-25 * size, -100 * size, 50 * size, 40 * size);
+                ctx.fillRect(-35 * size, -65 * size, 70 * size, 10 * size);
+            }
+
+            if (acc === 'Monocle') {
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(30 * size, -20 * size, 15 * size, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            if (acc === 'Gold Chain') {
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 5 * size;
+                ctx.beginPath();
+                ctx.arc(0, 0, 70 * size, 0.5, Math.PI - 0.5);
+                ctx.stroke();
+            }
+
+            if (acc === 'Rhinestone Bedazzle') {
+                ctx.fillStyle = '#FF69B4';
+                for (let i = 0; i < 15; i++) {
+                    const x = (Math.random() - 0.5) * 120 * size;
+                    const y = (Math.random() - 0.5) * 80 * size;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3 * size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            if (acc === 'Crown') {
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.moveTo(-40 * size, -80 * size);
+                ctx.lineTo(-30 * size, -100 * size);
+                ctx.lineTo(-20 * size, -85 * size);
+                ctx.lineTo(-10 * size, -105 * size);
+                ctx.lineTo(0, -90 * size);
+                ctx.lineTo(10 * size, -105 * size);
+                ctx.lineTo(20 * size, -85 * size);
+                ctx.lineTo(30 * size, -100 * size);
+                ctx.lineTo(40 * size, -80 * size);
+                ctx.lineTo(0, -70 * size);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            if (acc === 'Tiny Tuxedo') {
+                // Draw tiny tuxedo
+                ctx.fillStyle = '#000';
+                ctx.fillRect(-40 * size, -20 * size, 80 * size, 60 * size);
+                ctx.fillStyle = '#FFF';
+                ctx.fillRect(-10 * size, -20 * size, 20 * size, 50 * size);
+                // Bow tie
+                ctx.fillStyle = '#000';
+                ctx.fillRect(-15 * size, -25 * size, 30 * size, 10 * size);
+            }
+
+            ctx.restore();
+
+            // Seasoning name
+            ctx.fillStyle = '#8B4513';
+            ctx.font = 'bold 14px Georgia';
+            ctx.textAlign = 'center';
+            ctx.fillText(gameState.currentHock.seasoning, centerX, canvas.height - 20);
+        }
+
+        function calculateScore() {
+            let baseScore = 50;
+
+            // Size scoring
+            const sizeScores = {
+                'Dainty': 15,
+                'Regular': 20,
+                'Hefty': 25,
+                'ABSOLUTE UNIT': 30,
+                'Theoretical Maximum': 40
+            };
+            baseScore += sizeScores[gameState.currentHock.size] || 20;
+
+            // Color scoring
+            const colorScores = {
+                'Natural Pink': 10,
+                'Hickory Smoked': 15,
+                'Honey Glazed': 20,
+                'Maple Bourbon': 25,
+                'Iridescent Shimmer': 30,
+                'Void Black': 35,
+                'Ethereal Glow': 40
+            };
+            baseScore += colorScores[gameState.currentHock.color] || 10;
+
+            // Accessory scoring
+            const accessoryScores = {
+                'None': 0,
+                'Bow Tie': 15,
+                'Top Hat': 20,
+                'Monocle': 25,
+                'Gold Chain': 30,
+                'Rhinestone Bedazzle': 35,
+                'Crown': 40,
+                'Tiny Tuxedo': 50
+            };
+            baseScore += accessoryScores[gameState.currentHock.accessory] || 0;
+
+            // Seasoning scoring
+            const seasoningScores = {
+                'Classic Salt & Pepper': 10,
+                'Cajun Spice': 15,
+                'Herbs de Provence': 20,
+                'Memphis BBQ Rub': 25,
+                'Unicorn Tears': 35,
+                'Existential Dread': 40,
+                'Pure Umami': 45,
+                'Concept of Time': 55
+            };
+            baseScore += seasoningScores[gameState.currentHock.seasoning] || 10;
+
+            // Add some randomness
+            baseScore += Math.random() * 20 - 10;
+
+            return Math.round(Math.max(0, Math.min(100, baseScore)));
+        }
+
+        function submitHock() {
+            drawHock('judgingCanvas');
+
+            const score = calculateScore();
+            const judgeCount = Math.min(3 + Math.floor(gameState.level / 3), judges.length);
+            const selectedJudges = judges.slice(0, judgeCount);
+
+            const judgePanel = document.getElementById('judgePanel');
+            judgePanel.innerHTML = '';
+
+            selectedJudges.forEach(judge => {
+                const judgeDiv = document.createElement('div');
+                judgeDiv.className = 'judge';
+
+                const judgeName = document.createElement('div');
+                judgeName.className = 'judge-name';
+                judgeName.textContent = judge.name;
+                if (judge.title) {
+                    judgeName.textContent += ' - ' + judge.title;
+                }
+
+                const judgeComment = document.createElement('div');
+                judgeComment.className = 'judge-comment';
+                judgeComment.textContent = '"' + judge.getComment(gameState.currentHock, score) + '"';
+
+                judgeDiv.appendChild(judgeName);
+                judgeDiv.appendChild(judgeComment);
+                judgePanel.appendChild(judgeDiv);
+            });
+
+            const prestigeGained = Math.floor(score / 5) + gameState.level * 2;
+            gameState.prestige += prestigeGained;
+            gameState.totalScore += score;
+            gameState.hocksCreated++;
+
+            document.getElementById('finalScore').innerHTML =
+                `Final Score: ${score}/100<br>` +
+                `Prestige Gained: +${prestigeGained}<br>` +
+                `<span style="font-size: 16px;">Total Prestige: ${gameState.prestige}</span>`;
+
+            showPhase('judgingPhase');
+        }
+
+        function nextRound() {
+            gameState.level++;
+
+            if (gameState.level % 2 === 0) {
+                alert(`🎉 LEVEL ${gameState.level} REACHED! 🎉\n\nNew options have been unlocked!\nThe judges grow more sophisticated...\nThe stakes have never been higher!`);
+            }
+
+            resetHock();
+            renderOptions();
+            showPhase('designPhase');
+        }
+
+        function resetHock() {
+            gameState.currentHock = {
+                size: 'Regular',
+                color: 'Natural Pink',
+                accessory: 'None',
+                seasoning: 'Classic Salt & Pepper'
+            };
+        }
+
+        function updateStats() {
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('prestige').textContent = gameState.prestige;
+            document.getElementById('hocksCreated').textContent = gameState.hocksCreated;
+            document.getElementById('totalScore').textContent = gameState.totalScore;
+        }
+
+        function showPhase(phaseId) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById(phaseId).classList.add('active');
+        }
+
+        function startGame() {
+            showPhase('designPhase');
+            renderOptions();
+            drawHock('hockCanvas');
+        }
+
+        // Initialize
+        drawHock('hockCanvas');
+    </script>
+</body>
+</html>
