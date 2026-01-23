@@ -8,9 +8,7 @@ if [ -z "$GITHUB_TOKEN" ]; then
     exit 1
 fi
 
-SPRITES_TOKEN="adam-761/1425148/581fa386a123b3cee5e3ad6fddfd592c/9186abb5216275aea3799b4393266cb40c23188cdebb968a5292efbb13a9daf5"
 SPRITE_NAME="hamhock-ui-test"
-API_BASE="https://api.sprites.dev/v1"
 BRANCH="claude/revamp-hamhock-ui-f9nXt"
 
 echo "🎬 Generating Videos on Sprite VM and Pushing to GitHub"
@@ -166,53 +164,29 @@ SPRITE_SCRIPT_END
 SPRITE_SCRIPT="${SPRITE_SCRIPT//BRANCH_PLACEHOLDER/$BRANCH}"
 SPRITE_SCRIPT="${SPRITE_SCRIPT//GITHUB_TOKEN_PLACEHOLDER/$GITHUB_TOKEN}"
 
-echo "📝 Sending complete script to Sprite..."
+echo "📝 Executing script on Sprite VM..."
 echo "   This will take 3-5 minutes to complete"
 echo ""
 
-# Send the script to the Sprite as a single command
-# Using a longer timeout and running in foreground
-response=$(curl -s -X POST "$API_BASE/sprites/$SPRITE_NAME/exec" \
-  -H "Authorization: Bearer $SPRITES_TOKEN" \
-  -H "Content-Type: application/json" \
-  --max-time 600 \
-  -d "{\"command\":[\"bash\",\"-c\",$(printf '%s' "$SPRITE_SCRIPT" | jq -Rs .)]}")
+# Execute the script on the Sprite using sprite exec
+# This waits for completion and returns output
+sprite exec "$SPRITE_SCRIPT"
 
-echo "📊 Sprite Response:"
-echo "$response" | python3 -c "
-import sys, json
-try:
-    data = json.load(sys.stdin)
-    stdout = data.get('stdout', '')
-    stderr = data.get('stderr', '')
-    exit_code = data.get('exit_code', 0)
-
-    if stdout:
-        print('STDOUT:')
-        print(stdout)
-    if stderr:
-        print('\\nSTDERR:')
-        print(stderr)
-    if exit_code != 0:
-        print(f'\\nExit code: {exit_code}')
-        sys.exit(exit_code)
-except Exception as e:
-    print(f'Could not parse response (this may be OK if command is still running)')
-    print(f'Raw response length: {len(sys.stdin.read())} bytes')
-" 2>&1 || echo "Response parsing had issues, but command may have succeeded"
+exit_code=$?
 
 echo ""
-echo "✅ Script sent to Sprite!"
-echo ""
-echo "The Sprite is now:"
-echo "  1. Installing dependencies"
-echo "  2. Running UI tests"
-echo "  3. Converting videos"
-echo "  4. Pushing to GitHub"
-echo ""
-echo "Check GitHub in a few minutes for videos:"
-echo "  https://github.com/Adam-S-Daniel/scratch-claude-001/tree/$BRANCH/test-videos"
-echo ""
-echo "To verify, pull the latest changes:"
-echo "  git pull origin $BRANCH"
-echo ""
+if [ $exit_code -eq 0 ]; then
+    echo "✅ Success! Videos generated and pushed to GitHub"
+    echo "=================================================="
+    echo ""
+    echo "View videos on GitHub:"
+    echo "  https://github.com/Adam-S-Daniel/scratch-claude-001/tree/$BRANCH/test-videos"
+    echo ""
+    echo "Pull the latest changes locally:"
+    echo "  git pull origin $BRANCH"
+    echo ""
+else
+    echo "❌ Script failed with exit code: $exit_code"
+    echo "Check the output above for errors"
+    exit $exit_code
+fi
