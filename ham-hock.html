@@ -572,14 +572,22 @@
             updateStats();
         }
 
+        const categoryToSingular = {
+            'sizes': 'size',
+            'colors': 'color',
+            'accessories': 'accessory',
+            'seasonings': 'seasoning'
+        };
+
         function renderCategory(elementId, category, data) {
             const container = document.getElementById(elementId);
             container.innerHTML = '';
+            const singularCategory = categoryToSingular[category];
 
             for (const [name, requirements] of Object.entries(data)) {
                 const isUnlocked = gameState.level >= requirements.unlockLevel &&
                                   gameState.prestige >= requirements.prestige;
-                const isSelected = gameState.currentHock[category.slice(0, -1)] === name;
+                const isSelected = gameState.currentHock[singularCategory] === name;
 
                 const btn = document.createElement('button');
                 btn.className = 'option-btn' +
@@ -592,7 +600,7 @@
                 }
 
                 if (isUnlocked) {
-                    btn.onclick = () => selectOption(category.slice(0, -1), name);
+                    btn.onclick = () => selectOption(singularCategory, name);
                 }
 
                 container.appendChild(btn);
