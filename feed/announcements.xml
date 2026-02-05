@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Claude Product Announcements</title>
+    <link>https://claude.com/blog/category/announcements</link>
+    <description>Stay up to date on the latest Claude features, model releases, and product updates from Anthropic.</description>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 29 Jan 2026 00:00:00 GMT</lastBuildDate>
+    <atom:link href="https://adam-s-daniel.github.io/scratch-claude-001/feed/announcements.xml" rel="self" type="application/rss+xml"/>
+
+    <item>
+      <title>Understand Claude Code's impact with contribution metrics</title>
+      <link>https://claude.com/blog/contribution-metrics</link>
+      <guid isPermaLink="true">https://claude.com/blog/contribution-metrics</guid>
+      <pubDate>Thu, 29 Jan 2026 00:00:00 GMT</pubDate>
+      <description>Claude Code now offers contribution metrics in public beta, enabling engineering teams to measure velocity by tracking pull requests merged and code committed with AI assistance.</description>
+    </item>
+
+    <item>
+      <title>Updates to Claude Team</title>
+      <link>https://claude.com/blog/claude-team-updates</link>
+      <guid isPermaLink="true">https://claude.com/blog/claude-team-updates</guid>
+      <pubDate>Wed, 28 Jan 2026 00:00:00 GMT</pubDate>
+      <description>The Claude Team plan is now more accessible with lower pricing for standard and premium seats, new annual discounts, and collaborative workspace features including Claude Code integration.</description>
+    </item>
+
+    <item>
+      <title>Your favorite work tools are now interactive inside Claude</title>
+      <link>https://claude.com/blog/interactive-tools-in-claude</link>
+      <guid isPermaLink="true">https://claude.com/blog/interactive-tools-in-claude</guid>
+      <pubDate>Mon, 26 Jan 2026 00:00:00 GMT</pubDate>
+      <description>Claude now offers interactive tool integration built on the open Model Context Protocol (MCP), allowing users to open and interact with tools like Asana, Slack, and Figma directly within conversations.</description>
+    </item>
+
+    <item>
+      <title>Cowork: Claude Code for the rest of your work</title>
+      <link>https://claude.com/blog/cowork-research-preview</link>
+      <guid isPermaLink="true">https://claude.com/blog/cowork-research-preview</guid>
+      <pubDate>Mon, 12 Jan 2026 00:00:00 GMT</pubDate>
+      <description>Cowork extends Claude's agentic capabilities beyond coding to general users, allowing them to grant Claude access to computer folders to read, edit, and create files for tasks like organizing documents and creating spreadsheets.</description>
+    </item>
+
+    <item>
+      <title>What's new in Claude: Turning Claude into your thinking partner</title>
+      <link>https://claude.com/blog/your-thinking-partner</link>
+      <guid isPermaLink="true">https://claude.com/blog/your-thinking-partner</guid>
+      <pubDate>Thu, 20 Nov 2025 00:00:00 GMT</pubDate>
+      <description>Claude has introduced new features including memory, voice capabilities, and file creation that enable it to function as a collaborative thinking partner, maintaining context across conversations.</description>
+    </item>
+
+    <item>
+      <title>Claude Code on the web</title>
+      <link>https://claude.com/blog/claude-code-on-the-web</link>
+      <guid isPermaLink="true">https://claude.com/blog/claude-code-on-the-web</guid>
+      <pubDate>Mon, 20 Oct 2025 00:00:00 GMT</pubDate>
+      <description>Developers can now assign multiple coding tasks that execute on cloud infrastructure, connect GitHub repositories, run tasks in parallel, and automatically generate pull requests with change summaries.</description>
+    </item>
+
+    <item>
+      <title>Introducing Agent Skills</title>
+      <link>https://claude.com/blog/skills</link>
+      <guid isPermaLink="true">https://claude.com/blog/skills</guid>
+      <pubDate>Thu, 16 Oct 2025 00:00:00 GMT</pubDate>
+      <description>Claude now features Skills—customizable folders containing instructions, scripts, and resources that enable Claude to perform specialized tasks more effectively across Claude apps, Claude Code, and the API.</description>
+    </item>
+
+    <item>
+      <title>Customize Claude Code with plugins</title>
+      <link>https://claude.com/blog/claude-code-plugins</link>
+      <guid isPermaLink="true">https://claude.com/blog/claude-code-plugins</guid>
+      <pubDate>Thu, 09 Oct 2025 00:00:00 GMT</pubDate>
+      <description>Claude Code now supports plugins—customizable collections of slash commands, agents, MCP servers, and hooks that users can install with a single command to share standardized setups and enforce coding standards.</description>
+    </item>
+
+    <item>
+      <title>Claude and Slack</title>
+      <link>https://claude.com/blog/claude-and-slack</link>
+      <guid isPermaLink="true">https://claude.com/blog/claude-and-slack</guid>
+      <pubDate>Wed, 01 Oct 2025 00:00:00 GMT</pubDate>
+      <description>Anthropic introduced two ways to integrate Claude with Slack: adding Claude directly to workspaces for real-time assistance, or connecting Slack to Claude for searching channels, messages, and files.</description>
+    </item>
+
+    <item>
+      <title>Claude is now available in Microsoft 365 Copilot</title>
+      <link>https://claude.com/blog/claude-now-available-in-microsoft-365-copilot</link>
+      <guid isPermaLink="true">https://claude.com/blog/claude-now-available-in-microsoft-365-copilot</guid>
+      <pubDate>Wed, 24 Sep 2025 00:00:00 GMT</pubDate>
+      <description>Claude models including Sonnet 4 and Opus 4.1 are now accessible through Microsoft 365 Copilot, giving enterprise customers enhanced flexibility in selecting AI models for their workflows.</description>
+    </item>
+
+    <item>
+      <title>Build and share AI-powered apps with Claude</title>
+      <link>https://claude.com/blog/claude-powered-artifacts</link>
+      <guid isPermaLink="true">https://claude.com/blog/claude-powered-artifacts</guid>
+      <pubDate>Fri, 25 Jul 2025 00:00:00 GMT</pubDate>
+      <description>Developers can now create and host interactive AI-powered apps directly within the Claude platform, where users authenticate with their own accounts and API usage counts against their own subscriptions.</description>
+    </item>
+
+    <item>
+      <title>Claude can now connect to your world</title>
+      <link>https://claude.com/blog/integrations</link>
+      <guid isPermaLink="true">https://claude.com/blog/integrations</guid>
+      <pubDate>Thu, 01 May 2025 00:00:00 GMT</pubDate>
+      <description>Anthropic launched Integrations enabling Claude to connect with remote MCP servers from popular tools like Jira, Zapier, and Asana, with expanded Research capabilities for deeper investigations.</description>
+    </item>
+
+    <item>
+      <title>Introducing the Max Plan</title>
+      <link>https://claude.com/blog/max-plan</link>
+      <guid isPermaLink="true">https://claude.com/blog/max-plan</guid>
+      <pubDate>Wed, 09 Apr 2025 00:00:00 GMT</pubDate>
+      <description>Claude's Max plan provides up to 20x higher usage limits than Pro at $100 and $200 monthly tiers, with priority access to new features and models for frequent collaborators.</description>
+    </item>
+
+  </channel>
+</rss>

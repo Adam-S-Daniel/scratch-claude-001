@@ -1,0 +1,12 @@
+{
+  "name": "scratch-claude-001",
+  "version": "1.0.0",
+  "description": "This repository contains a modern, responsive website with automated deployment to GitHub Pages using GitHub Actions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
