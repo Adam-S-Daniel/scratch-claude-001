@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages and Sprite
 
 on:
   push:
@@ -49,3 +49,51 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  deploy-sprite:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      SPRITE_TOKEN: ${{ secrets.SPRITES_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Sprites CLI
+        run: curl -fsSL https://sprites.dev/install.sh | bash
+
+      - name: Create sprite (if not exists)
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          sprite create rss-feeds 2>/dev/null || echo "Sprite already exists"
+
+      - name: Upload server code to sprite
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          sprite exec -s rss-feeds mkdir -p /home/sprite/rss-server
+          # Upload server.js via base64 to avoid quoting issues
+          base64 -w0 sprite/server.js | sprite exec -s rss-feeds bash -c 'base64 -d > /home/sprite/rss-server/server.js'
+
+      - name: Stop existing server and start new one
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          sprite exec -s rss-feeds bash -c 'pkill -f "node /home/sprite/rss-server/server.js" 2>/dev/null || true'
+          sprite exec -s rss-feeds bash -c 'cd /home/sprite/rss-server && nohup node server.js > /tmp/rss-server.log 2>&1 &'
+          sleep 2
+          sprite exec -s rss-feeds bash -c 'curl -sf http://localhost:8080/feed/announcements.xml | head -5'
+
+      - name: Make sprite URL public
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          sprite url update --auth public -s rss-feeds
+
+      - name: Print sprite URL
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          echo "Sprite URL:"
+          sprite url -s rss-feeds
+          echo ""
+          echo "Feed endpoints:"
+          SPRITE_URL=$(sprite url -s rss-feeds)
+          echo "  Announcements: ${SPRITE_URL}/feed/announcements.xml"
+          echo "  Anthropic News: ${SPRITE_URL}/feed/anthropic-news.xml"
