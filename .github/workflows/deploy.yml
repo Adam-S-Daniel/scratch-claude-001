@@ -62,6 +62,11 @@ jobs:
       - name: Install Sprites CLI
         run: curl -fsSL https://sprites.dev/install.sh | bash
 
+      - name: Authenticate with Sprites
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          sprite auth setup --token "$SPRITE_TOKEN"
+
       - name: Create sprite (if not exists)
         run: |
           export PATH="$HOME/.local/bin:$PATH"
