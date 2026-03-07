@@ -306,23 +306,35 @@ MARKET GAPS (Categories Below Auction Values)
 ============================================================
 ```
 
+## Using the DataLoader
+
+The `DataLoader` class can pull from multiple museum APIs and open data sources:
+
+```python
+from src.data_loader import DataLoader
+
+# All available sources
+app = DataLoader().load_into_app(
+    fetch_met=True,           # Metropolitan Museum (free, no key)
+    fetch_smithsonian=True,   # Smithsonian Open Access (requires API key)
+    smithsonian_key="key",    # or set SMITHSONIAN_API_KEY env var
+    fetch_nga=True,           # National Gallery of Art (free CSV, no key)
+    nga_max=50,               # limit NGA results
+)
+```
+
+Available data sources:
+- **Seed data**: Always loaded. 16 auction houses, 38 records.
+- **Met Museum API**: Free, no key. American art objects as listings.
+- **Smithsonian API**: Free, key from api.data.gov. 5.1M+ items across 21 museums (CC0).
+- **NGA Open Data**: Free CSV from GitHub. 130K+ artworks (CC0).
+
 ## Running Tests
 
 Run the full test suite to verify everything works:
 
 ```bash
-/root/.local/bin/pytest tests/ -v --tb=short 2>&1 | tail -10
+pytest tests/ -v --tb=short 2>&1 | tail -5
 ```
 
-```output
-tests/test_unidentified.py::TestUnidentifiedArtistAnalyzer::test_get_unidentified_auction_records PASSED [ 89%]
-tests/test_unidentified.py::TestUnidentifiedArtistAnalyzer::test_get_unidentified_listings PASSED [ 90%]
-tests/test_unidentified.py::TestUnidentifiedArtistAnalyzer::test_find_promising_by_high_past_value PASSED [ 92%]
-tests/test_unidentified.py::TestUnidentifiedArtistAnalyzer::test_promising_work_has_signals PASSED [ 93%]
-tests/test_unidentified.py::TestUnidentifiedArtistAnalyzer::test_promising_work_has_comparable_sales PASSED [ 95%]
-tests/test_unidentified.py::TestUnidentifiedArtistAnalyzer::test_find_promising_by_medium_match PASSED [ 96%]
-tests/test_unidentified.py::TestUnidentifiedArtistAnalyzer::test_category_value_summary PASSED [ 98%]
-tests/test_unidentified.py::TestUnidentifiedArtistAnalyzer::test_score_listing PASSED [100%]
-
-============================== 64 passed in 0.13s ==============================
-```
+The suite includes 100 tests across all modules, including 36 data loader tests covering all four sources.

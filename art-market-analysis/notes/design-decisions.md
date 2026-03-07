@@ -124,7 +124,20 @@ The painting scores higher because its category/medium have
 much higher comparable auction values.
 ```
 
-## 6. Red/Green TDD Discipline
+## 6. Multi-Source Data Architecture
+
+The `DataLoader` supports four independent data sources, each opted into separately:
+
+- **Seed data** (always loaded): Curated JSON files for auction houses and records. No network needed.
+- **Met Museum API**: Free REST API, no key. Returns American art objects as listings.
+- **Smithsonian Open Access API**: REST API requiring a free api.data.gov key. Returns nested JSON structures that are flattened via `_flatten_smithsonian_row()` before conversion to listings.
+- **NGA Open Data**: CSV files hosted on GitHub. Downloaded and parsed with Python's `csv.DictReader`, filtered to American artworks by nationality field.
+
+Each source has its own `fetch_*` function and `*_to_listing()` converter, following the same pattern: fetch raw data, classify into our category system using `_MET_CATEGORY_MAP` plus medium-based fallback heuristics, estimate a price using `_estimate_price()`, and return a standard listing dict. All sources are optional — the app works with seed data alone, or with any combination of live sources.
+
+This design keeps sources independent: adding a new source means writing one fetch function and one converter, then adding a flag to `DataLoader.load_into_app()`.
+
+## 7. Red/Green TDD Discipline
 
 Every component was built test-first:
 

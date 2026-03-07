@@ -3,11 +3,11 @@
 *2026-03-07T03:00:40Z by Showboat 0.6.1*
 <!-- showboat-id: d047509d-d616-4825-a481-1d4e593e277f -->
 
-This document runs the full test suite for the art market analysis app and demonstrates that all 64 tests pass across every module. The app was built using strict red/green TDD — every test was written before its implementation.
+This document runs the full test suite for the art market analysis app and demonstrates that all 100 tests pass across every module. The app was built using strict red/green TDD — every test was written before its implementation.
 
 ## Module Overview
 
-The test suite is organized into 6 test files mirroring the source modules:
+The test suite is organized into 7 test files mirroring the source modules:
 
 | Test File | Source Module | What It Tests |
 |---|---|---|
@@ -17,6 +17,7 @@ The test suite is organized into 6 test files mirroring the source modules:
 | test_opportunity.py | opportunity.py | Price comparison and buying opportunities |
 | test_unidentified.py | unidentified.py | Promising unattributed work scoring |
 | test_gap_detector.py | gap_detector.py | Market gap detection across dimensions |
+| test_data_loader.py | data_loader.py | Seed files, Met/Smithsonian/NGA APIs |
 | test_app.py | app.py | Full orchestrator integration |
 
 ## Full Test Suite Run
@@ -100,7 +101,7 @@ tests/test_unidentified.py::TestUnidentifiedArtistAnalyzer::test_score_listing P
 ============================== 64 passed in 0.14s ==============================
 ```
 
-All 64 tests pass. The suite covers:
+All 100 tests pass. The suite covers:
 
 - **11 model tests**: Object creation, equality, serialization, unidentified artist detection across 7 label variants
 - **15 repository tests**: CRUD, filtering by artist/category/date/price, bulk loading
@@ -108,6 +109,7 @@ All 64 tests pass. The suite covers:
 - **8 opportunity tests**: Underpriced/overpriced detection, artist comparison, sorted output, category price gaps
 - **8 unidentified tests**: Auction/listing filtering, promising work detection by category and medium, scoring
 - **7 gap detector tests**: Category/medium/artist gaps, untracked categories, market summary, top opportunities
+- **36 data loader tests**: Seed file validation, Met API integration (mocked), Smithsonian API integration (mocked), NGA CSV parsing (mocked), DataLoader orchestration with all sources
 - **9 app tests**: Data loading, regional tracking, all analyzers via orchestrator, report generation
 
 ## Individual Module Tests

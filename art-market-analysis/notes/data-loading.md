@@ -3,15 +3,19 @@
 *2026-03-07T04:50:07Z by Showboat 0.6.1*
 <!-- showboat-id: 01719b64-0bdc-4526-9ce0-776ac180eea1 -->
 
-The app now loads data automatically from two real sources:
+The app now loads data automatically from four real sources:
 
-1. **Seed data files** (`data/houses.json`, `data/auction_records.json`): Curated records from 12 real mid-Atlantic auction houses (Freeman's, Weschler's, Pook & Pook, Brunk Auctions, Potomack Company, Alex Cooper, etc.) plus 3 major New York houses for comparison. 35 auction records with realistic prices based on actual market patterns for American paintings, furniture, silver, textiles, and decorative arts.
+1. **Seed data files** (`data/houses.json`, `data/auction_records.json`): Curated records from 13 real mid-Atlantic auction houses (Freeman's, Weschler's, Doyle, Pook & Pook, Brunk Auctions, Potomack Company, Alex Cooper, etc.) plus 3 major New York houses for comparison. 38 auction records with realistic prices based on actual market patterns for American paintings, furniture, silver, textiles, and decorative arts.
 
 2. **Metropolitan Museum of Art Collection API** (https://metmuseum.github.io/): Free, no API key required. Fetches real artwork data — title, artist, medium, classification — from the Met's American collection. Objects are converted into listings with estimated market prices based on category.
 
+3. **Smithsonian Open Access API** (https://www.si.edu/openaccess/devtools): Free, requires an API key from api.data.gov. Searches across 21 museums including the Smithsonian American Art Museum (SAAM) and Hirshhorn in Washington, DC. Returns 5.1M+ items under CC0 license. The API returns nested JSON structures that are flattened to extract artist, medium, object type, and physical description.
+
+4. **National Gallery of Art Open Data** (https://github.com/NationalGalleryOfArt/opendata): Free CSV files on GitHub, 130,000+ artworks under CC0 license. The app downloads the objects CSV, filters to American artworks by nationality, and converts rows to listing format. Updated daily by NGA.
+
 ## Test Suite
 
-First, let's verify all 85 tests pass — including 21 new tests for the data loader:
+First, let's verify all 100 tests pass — including 36 tests for the data loader covering all four sources:
 
 ```bash
 /root/.local/bin/pytest tests/test_data_loader.py -v 2>&1
@@ -51,7 +55,7 @@ tests/test_data_loader.py::TestDataLoader::test_load_seed_only_no_network PASSED
 
 ## Seed Data: Real Auction Houses
 
-The `data/houses.json` file contains 15 real auction houses — 12 mid-Atlantic and 3 major New York houses for price comparison:
+The `data/houses.json` file contains 16 real auction houses — 13 mid-Atlantic and 3 major New York houses for price comparison:
 
 ```python3
 
@@ -306,12 +310,26 @@ app = DataLoader().load_into_app()
 # With live Met Museum listings
 app = DataLoader().load_into_app(fetch_met=True)
 
-# Custom queries and limits
+# With Smithsonian Open Access (requires API key from api.data.gov)
+app = DataLoader().load_into_app(
+    fetch_smithsonian=True,
+    smithsonian_key="your-api-key",  # or set SMITHSONIAN_API_KEY env var
+)
+
+# With National Gallery of Art open data (free, no key needed)
+app = DataLoader().load_into_app(fetch_nga=True, nga_max=100)
+
+# All sources at once
 app = DataLoader().load_into_app(
     fetch_met=True,
     met_queries=['portrait', 'still life', 'silver teapot'],
     met_max=15,
+    fetch_smithsonian=True,
+    smithsonian_queries=['american painting', 'american silver'],
+    smithsonian_max=20,
+    fetch_nga=True,
+    nga_max=50,
 )
 ```
 
-The `DataLoader` handles everything: reading seed JSON files, calling the Met API, converting responses to the app's model format, and wiring it all into a ready-to-use `ArtMarketApp` instance.
+The `DataLoader` handles everything: reading seed JSON files, calling museum APIs, downloading CSV data, converting responses to the app's model format, and wiring it all into a ready-to-use `ArtMarketApp` instance.
