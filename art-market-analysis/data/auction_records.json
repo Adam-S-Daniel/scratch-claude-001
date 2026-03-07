@@ -1,0 +1,352 @@
+[
+  {
+    "lot_number": "101",
+    "title": "View of the Delaware Water Gap",
+    "artist": "Thomas Birch",
+    "medium": "oil on canvas",
+    "date_sold": "2023-11-15",
+    "hammer_price": 42000,
+    "auction_house": "Freeman's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "102",
+    "title": "Ships in Philadelphia Harbor",
+    "artist": "Thomas Birch",
+    "medium": "oil on canvas",
+    "date_sold": "2024-03-10",
+    "hammer_price": 38000,
+    "auction_house": "Freeman's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "103",
+    "title": "Niagara Falls from the American Side",
+    "artist": "Thomas Birch",
+    "medium": "oil on panel",
+    "date_sold": "2024-09-22",
+    "hammer_price": 52000,
+    "auction_house": "Freeman's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "201",
+    "title": "Portrait of a Revolutionary War Officer",
+    "artist": "Charles Willson Peale",
+    "medium": "oil on canvas",
+    "date_sold": "2024-01-20",
+    "hammer_price": 95000,
+    "auction_house": "Freeman's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "202",
+    "title": "Portrait of Mrs. Thomas Willing",
+    "artist": "Charles Willson Peale",
+    "medium": "oil on canvas",
+    "date_sold": "2024-06-14",
+    "hammer_price": 82000,
+    "auction_house": "Freeman's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "301",
+    "title": "Shenandoah Valley at Sunset",
+    "artist": "Unknown Artist",
+    "medium": "oil on canvas",
+    "date_sold": "2024-02-15",
+    "hammer_price": 8500,
+    "auction_house": "Weschler's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "302",
+    "title": "Civil War Encampment Scene",
+    "artist": "Unidentified",
+    "medium": "oil on panel",
+    "date_sold": "2024-05-01",
+    "hammer_price": 6200,
+    "auction_house": "Weschler's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "303",
+    "title": "Portrait of a Virginia Gentleman",
+    "artist": "Unknown Artist",
+    "medium": "oil on canvas",
+    "date_sold": "2024-08-18",
+    "hammer_price": 4800,
+    "auction_house": "Weschler's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "304",
+    "title": "Georgetown Waterfront",
+    "artist": "Andrew W. Warren",
+    "medium": "oil on canvas",
+    "date_sold": "2024-04-12",
+    "hammer_price": 28000,
+    "auction_house": "Weschler's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "401",
+    "title": "Philadelphia Chippendale Side Chair",
+    "artist": "Unknown Maker",
+    "medium": "mahogany",
+    "date_sold": "2024-04-10",
+    "hammer_price": 18500,
+    "auction_house": "Freeman's",
+    "category": "furniture"
+  },
+  {
+    "lot_number": "402",
+    "title": "Federal Serpentine-Front Chest of Drawers",
+    "artist": "Unknown Maker",
+    "medium": "mahogany with inlay",
+    "date_sold": "2024-07-20",
+    "hammer_price": 14200,
+    "auction_house": "Pook & Pook",
+    "category": "furniture"
+  },
+  {
+    "lot_number": "403",
+    "title": "Queen Anne Lowboy",
+    "artist": "Unknown Maker",
+    "medium": "walnut",
+    "date_sold": "2024-01-28",
+    "hammer_price": 22000,
+    "auction_house": "Pook & Pook",
+    "category": "furniture"
+  },
+  {
+    "lot_number": "404",
+    "title": "Pennsylvania German Schrank",
+    "artist": "Unknown Maker",
+    "medium": "painted pine",
+    "date_sold": "2024-10-05",
+    "hammer_price": 35000,
+    "auction_house": "Pook & Pook",
+    "category": "furniture"
+  },
+  {
+    "lot_number": "501",
+    "title": "Kirk Repousse Silver Pitcher",
+    "artist": "Samuel Kirk & Son",
+    "medium": "silver",
+    "date_sold": "2024-06-01",
+    "hammer_price": 14000,
+    "auction_house": "Potomack Company",
+    "category": "decorative_arts"
+  },
+  {
+    "lot_number": "502",
+    "title": "Silver Serving Tray with Engraving",
+    "artist": "Unknown Maker",
+    "medium": "silver",
+    "date_sold": "2024-03-20",
+    "hammer_price": 4800,
+    "auction_house": "Brunk Auctions",
+    "category": "decorative_arts"
+  },
+  {
+    "lot_number": "503",
+    "title": "Kirk Repousse Tea Service, Five Piece",
+    "artist": "Samuel Kirk & Son",
+    "medium": "silver",
+    "date_sold": "2024-11-10",
+    "hammer_price": 22500,
+    "auction_house": "Alex Cooper Auctioneers",
+    "category": "decorative_arts"
+  },
+  {
+    "lot_number": "504",
+    "title": "Pair of Brass Andirons, Federal Period",
+    "artist": "Unknown Maker",
+    "medium": "brass",
+    "date_sold": "2024-09-14",
+    "hammer_price": 3200,
+    "auction_house": "Potomack Company",
+    "category": "decorative_arts"
+  },
+  {
+    "lot_number": "505",
+    "title": "Staffordshire Historical Blue Platter, Capitol Building",
+    "artist": "Unknown Maker",
+    "medium": "earthenware",
+    "date_sold": "2024-05-18",
+    "hammer_price": 5600,
+    "auction_house": "Weschler's",
+    "category": "decorative_arts"
+  },
+  {
+    "lot_number": "601",
+    "title": "Star Pattern Quilt",
+    "artist": "Anonymous",
+    "medium": "textile",
+    "date_sold": "2024-02-28",
+    "hammer_price": 3200,
+    "auction_house": "Alderfer Auction",
+    "category": "textile"
+  },
+  {
+    "lot_number": "602",
+    "title": "Pennsylvania German Fraktur, Birth Certificate",
+    "artist": "Anonymous",
+    "medium": "watercolor and ink on paper",
+    "date_sold": "2024-05-04",
+    "hammer_price": 9800,
+    "auction_house": "Pook & Pook",
+    "category": "works_on_paper"
+  },
+  {
+    "lot_number": "603",
+    "title": "Log Cabin Quilt with Silk Patches",
+    "artist": "Anonymous",
+    "medium": "silk and cotton",
+    "date_sold": "2024-08-15",
+    "hammer_price": 4500,
+    "auction_house": "Alderfer Auction",
+    "category": "textile"
+  },
+  {
+    "lot_number": "701",
+    "title": "Tidewater Virginia Landscape",
+    "artist": "Edward Beyer",
+    "medium": "oil on canvas",
+    "date_sold": "2024-03-08",
+    "hammer_price": 35000,
+    "auction_house": "Brunk Auctions",
+    "category": "painting"
+  },
+  {
+    "lot_number": "702",
+    "title": "Blue Ridge Mountains from Rockfish Gap",
+    "artist": "Edward Beyer",
+    "medium": "oil on canvas",
+    "date_sold": "2024-10-20",
+    "hammer_price": 48000,
+    "auction_house": "Brunk Auctions",
+    "category": "painting"
+  },
+  {
+    "lot_number": "703",
+    "title": "Battle of Gettysburg, Pickett's Charge",
+    "artist": "Peter Frederick Rothermel",
+    "medium": "oil on canvas",
+    "date_sold": "2024-07-03",
+    "hammer_price": 75000,
+    "auction_house": "Freeman's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "704",
+    "title": "The Schuylkill River Near Philadelphia",
+    "artist": "Thomas Doughty",
+    "medium": "oil on canvas",
+    "date_sold": "2024-04-22",
+    "hammer_price": 32000,
+    "auction_house": "Freeman's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "705",
+    "title": "Autumn on the Hudson",
+    "artist": "Thomas Doughty",
+    "medium": "oil on panel",
+    "date_sold": "2024-11-18",
+    "hammer_price": 28000,
+    "auction_house": "Freeman's",
+    "category": "painting"
+  },
+  {
+    "lot_number": "801",
+    "title": "Stoneware Crock with Cobalt Bird Decoration",
+    "artist": "Unknown Maker",
+    "medium": "stoneware",
+    "date_sold": "2024-06-22",
+    "hammer_price": 6500,
+    "auction_house": "Pook & Pook",
+    "category": "decorative_arts"
+  },
+  {
+    "lot_number": "802",
+    "title": "Redware Sgraffito Plate",
+    "artist": "Unknown Maker",
+    "medium": "redware",
+    "date_sold": "2024-10-12",
+    "hammer_price": 12500,
+    "auction_house": "Pook & Pook",
+    "category": "decorative_arts"
+  },
+  {
+    "lot_number": "803",
+    "title": "Landscape with Cattle",
+    "artist": "Unknown Artist",
+    "medium": "oil on canvas",
+    "date_sold": "2024-09-07",
+    "hammer_price": 5400,
+    "auction_house": "Quinn's Auction Galleries",
+    "category": "painting"
+  },
+  {
+    "lot_number": "804",
+    "title": "Harbor Scene with Ships",
+    "artist": "Unidentified",
+    "medium": "oil on canvas",
+    "date_sold": "2024-11-02",
+    "hammer_price": 7200,
+    "auction_house": "Leland Little Auctions",
+    "category": "painting"
+  },
+  {
+    "lot_number": "805",
+    "title": "Piedmont North Carolina Farm Scene",
+    "artist": "Elliott Daingerfield",
+    "medium": "oil on canvas",
+    "date_sold": "2024-04-06",
+    "hammer_price": 62000,
+    "auction_house": "Leland Little Auctions",
+    "category": "painting"
+  },
+  {
+    "lot_number": "806",
+    "title": "Appalachian Mountain View",
+    "artist": "Elliott Daingerfield",
+    "medium": "oil on board",
+    "date_sold": "2024-09-28",
+    "hammer_price": 45000,
+    "auction_house": "Brunk Auctions",
+    "category": "painting"
+  },
+  {
+    "lot_number": "901",
+    "title": "Tall Case Clock, Pennsylvania",
+    "artist": "Unknown Maker",
+    "medium": "cherry and poplar",
+    "date_sold": "2024-03-16",
+    "hammer_price": 8500,
+    "auction_house": "Alderfer Auction",
+    "category": "furniture"
+  },
+  {
+    "lot_number": "902",
+    "title": "Windsor Writing Armchair",
+    "artist": "Unknown Maker",
+    "medium": "mixed hardwoods",
+    "date_sold": "2024-07-27",
+    "hammer_price": 11000,
+    "auction_house": "Pook & Pook",
+    "category": "furniture"
+  },
+  {
+    "lot_number": "903",
+    "title": "Baltimore Federal Sideboard",
+    "artist": "Unknown Maker",
+    "medium": "mahogany with satinwood inlay",
+    "date_sold": "2024-05-11",
+    "hammer_price": 28000,
+    "auction_house": "Sloans & Kenyon",
+    "category": "furniture"
+  }
+]

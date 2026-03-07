@@ -1,0 +1,77 @@
+[
+  {
+    "name": "Freeman's",
+    "location": "Philadelphia, PA",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Weschler's",
+    "location": "Washington, DC",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Brunk Auctions",
+    "location": "Asheville, NC",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Potomack Company",
+    "location": "Alexandria, VA",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Alderfer Auction",
+    "location": "Hatfield, PA",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Pook & Pook",
+    "location": "Downingtown, PA",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Wiederseim Associates",
+    "location": "Chester Springs, PA",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Alex Cooper Auctioneers",
+    "location": "Towson, MD",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Sloans & Kenyon",
+    "location": "Chevy Chase, MD",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Leland Little Auctions",
+    "location": "Hillsborough, NC",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Charlton Hall Auctions",
+    "location": "West Columbia, SC",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Quinn's Auction Galleries",
+    "location": "Falls Church, VA",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Christie's",
+    "location": "New York, NY",
+    "region": "northeast"
+  },
+  {
+    "name": "Sotheby's",
+    "location": "New York, NY",
+    "region": "northeast"
+  },
+  {
+    "name": "Bonhams",
+    "location": "New York, NY",
+    "region": "northeast"
+  }
+]
