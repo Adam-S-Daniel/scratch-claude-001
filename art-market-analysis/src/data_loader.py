@@ -27,6 +27,7 @@ from urllib.request import urlopen, Request
 from urllib.error import URLError
 
 from src.app import ArtMarketApp
+from src.source_registry import RiskLevel, SourceRegistry
 
 _DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 _MET_API_BASE = "https://collectionapi.metmuseum.org/public/collection/v1"
@@ -399,9 +400,22 @@ def fetch_nga_artworks(max_results: int = 50) -> List[dict]:
 
 
 class DataLoader:
-    """Orchestrates loading data from all sources into the app."""
+    """Orchestrates loading data from all sources into the app.
 
-    def __init__(self) -> None:
+    Args:
+        max_risk: Maximum license risk level to allow. Sources with risk
+            above this level will be skipped unless they have a written
+            agreement. Defaults to HIGH (allow everything).
+        registry: Custom SourceRegistry. If None, uses the default registry.
+    """
+
+    def __init__(
+        self,
+        max_risk: RiskLevel = RiskLevel.HIGH,
+        registry: SourceRegistry | None = None,
+    ) -> None:
+        self.max_risk = max_risk
+        self.registry = registry if registry is not None else SourceRegistry()
         self.houses: List[dict] = []
         self.auction_records: List[dict] = []
         self.listings: List[dict] = []
@@ -417,6 +431,8 @@ class DataLoader:
         max_per_query: int = 10,
     ) -> None:
         """Fetch listings from the Met Museum API."""
+        if not self.registry.is_source_allowed("met_museum", max_risk=self.max_risk):
+            return
         if queries is None:
             queries = [
                 "american landscape painting",
@@ -434,6 +450,13 @@ class DataLoader:
         max_per_query: int = 10,
     ) -> None:
         """Fetch listings from the Smithsonian Open Access API."""
+        if not self.registry.is_source_allowed("smithsonian", max_risk=self.max_risk):
+            return
+        # Use registry API key if caller didn't provide one
+        if api_key is None:
+            si_config = self.registry.get("smithsonian")
+            if si_config is not None:
+                api_key = si_config.get_api_key()
         if queries is None:
             queries = [
                 "american painting",
@@ -448,6 +471,8 @@ class DataLoader:
 
     def load_nga_listings(self, max_results: int = 50) -> None:
         """Fetch listings from the National Gallery of Art open data."""
+        if not self.registry.is_source_allowed("nga", max_risk=self.max_risk):
+            return
         results = fetch_nga_artworks(max_results=max_results)
         self.listings.extend(results)
 
@@ -460,10 +485,19 @@ class DataLoader:
 
         Args:
             sites: List of scraper keys (e.g. ["leland_little", "weschlers"]).
-                If None, runs all scrapers.
+                If None or ["all"], runs all allowed scrapers filtered by max_risk.
             max_per_site: Maximum results per site.
         """
         from src.scrapers import scrape_all
+
+        allowed = self.registry.allowed_scraper_keys(max_risk=self.max_risk)
+        if sites is None or sites == ["all"]:
+            sites = allowed
+        else:
+            sites = [s for s in sites if s in allowed]
+
+        if not sites:
+            return
         records = scrape_all(sites=sites, max_per_site=max_per_site)
         self.auction_records.extend(records)
 

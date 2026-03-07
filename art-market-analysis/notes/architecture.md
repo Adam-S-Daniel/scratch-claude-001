@@ -14,8 +14,9 @@ art-market-analysis/
 │   ├── gap_detector.py        Market gap detection by category/medium/artist
 │   ├── app.py                 ArtMarketApp orchestrator + report generation
 │   ├── data_loader.py         Multi-source data loading (seed, Met, Smithsonian, NGA)
+│   ├── source_registry.py     Risk levels, agreements, API key config per source
 │   └── scrapers.py            9 auction house web scrapers
-├── tests/                     pytest test suite (143 tests)
+├── tests/                     pytest test suite (205 tests)
 │   ├── __init__.py
 │   ├── test_models.py         11 tests
 │   ├── test_repositories.py   15 tests
@@ -23,7 +24,8 @@ art-market-analysis/
 │   ├── test_opportunity.py    8 tests
 │   ├── test_unidentified.py   8 tests
 │   ├── test_gap_detector.py   7 tests
-│   ├── test_data_loader.py    34 tests
+│   ├── test_data_loader.py    45 tests (includes 9 risk-filtering tests)
+│   ├── test_source_registry.py 53 tests (risk levels, agreements, API keys, edge cases)
 │   ├── test_app.py            9 tests
 │   └── test_scrapers.py       45 tests
 ├── data/                      Seed data
@@ -45,6 +47,8 @@ data_loader.py ──→ app.py ──→ tracker.py ──→ repositories.py �
     │                │
     │                └──→ gap_detector.py ──→ repositories.py
     │
+    ├──→ source_registry.py (risk levels, agreements, API key config)
+    │
     └──→ scrapers.py (standalone, no internal deps)
 ```
 
@@ -54,7 +58,7 @@ data_loader.py ──→ app.py ──→ tracker.py ──→ repositories.py �
 - **Repository Pattern**: `AuctionRepository` and `ListingRepository` abstract data access
 - **Strategy Pattern**: Separate analyzer classes for each concern
 - **Factory Pattern**: `from_dict()` methods on domain objects
-- **Registry Pattern**: `SCRAPERS` dict in scrapers.py for scraper lookup
+- **Registry Pattern**: `SCRAPERS` dict in scrapers.py for scraper lookup; `SourceRegistry` in source_registry.py for risk/agreement/API key management
 
 ## Data Flow
 

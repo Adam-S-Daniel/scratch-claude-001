@@ -18,7 +18,7 @@ python -m pytest tests/ -v
 ## Running Tests
 
 ```bash
-# Full suite (143 tests, ~0.4s)
+# Full suite (205 tests, ~0.4s)
 python -m pytest tests/ -v
 
 # Single module
@@ -73,17 +73,18 @@ Common edge cases to test:
 
 ```
 src/
-├── models.py          Domain objects (AuctionHouse, AuctionRecord, ArtListing)
-├── repositories.py    In-memory data storage and querying
-├── tracker.py         Mid-Atlantic regional filtering
-├── opportunity.py     Price comparison analysis
-├── unidentified.py    Unattributed work scoring (0-100 scale)
-├── gap_detector.py    Market gap detection
-├── app.py             ArtMarketApp orchestrator + reports
-├── data_loader.py     Multi-source data loading (seed, Met, Smithsonian, NGA)
-└── scrapers.py        9 auction house web scrapers
+├── models.py           Domain objects (AuctionHouse, AuctionRecord, ArtListing)
+├── repositories.py     In-memory data storage and querying
+├── tracker.py          Mid-Atlantic regional filtering
+├── opportunity.py      Price comparison analysis
+├── unidentified.py     Unattributed work scoring (0-100 scale)
+├── gap_detector.py     Market gap detection
+├── app.py              ArtMarketApp orchestrator + reports
+├── data_loader.py      Multi-source data loading (seed, Met, Smithsonian, NGA)
+├── source_registry.py  Risk levels, agreements, API key config per source
+└── scrapers.py         9 auction house web scrapers
 
-tests/                 pytest suite, 143 tests total
+tests/                  pytest suite, 205 tests total
 data/                  Seed JSON files (houses.json, auction_records.json)
 notes/                 Project documentation (keep updated!)
 skills/                Agent skills (agentskills.io format)
@@ -96,6 +97,7 @@ skills/                Agent skills (agentskills.io format)
 3. **Graceful degradation** — all network calls return empty on failure
 4. **Optional sources** — DataLoader flags: `fetch_met`, `fetch_smithsonian`, `fetch_nga`, `scrape_sites`
 5. **Categories**: `painting`, `works_on_paper`, `furniture`, `decorative_arts`, `textile`, `sculpture`
+6. **Risk filtering** — DataLoader accepts `max_risk` (RiskLevel enum: NONE, LOW, MODERATE, HIGH). Sources above the max are skipped unless they have a written agreement (`registry.set_agreement(key, True)`). API keys configured via `api_key_env` on SourceConfig.
 
 ## Documentation Maintenance
 
@@ -128,30 +130,31 @@ Current skills:
 - `skills/add-data-source/` — How to add a new museum API or data source
 - `skills/run-analysis/` — How to run analyses and generate reports
 - `skills/add-scraper/` — How to add a new auction house web scraper
+- `skills/assess-risk/` — How to assess license risk levels and configure source agreements/API keys
 
 When adding a new category of work (e.g., "add-analyzer", "deploy"), create a new skill with step-by-step instructions so future agents can follow the pattern.
 
 ## Data Sources
 
-| Source | Type | Auth | Status |
-|--------|------|------|--------|
-| Seed JSON | Local files | None | Always loaded |
-| Met Museum API | REST | None | Working |
-| Smithsonian API | REST | api.data.gov key | Working |
-| NGA Open Data | CSV/GitHub | None | Working |
-| Leland Little | JSON API scraper | None | Working |
-| Weschler's | HTML scraper | None | Blocked by Cloudflare |
-| Quinn's | HTML scraper | None | HiBid JS rendering |
-| Alex Cooper | HTML scraper | None | Auction Mobility platform |
-| Hilliard | HTML scraper | None | May need URL update |
-| Potomack | HTML scraper | None | Blocked by Cloudflare |
-| Bunch | HTML scraper | None | Auction Mobility platform |
-| Headley's | HTML scraper | None | HiBid JS rendering |
-| CTBids | HTML scraper | None | React SPA |
+| Source | Type | Auth | Risk | Status |
+|--------|------|------|------|--------|
+| Seed JSON | Local files | None | NONE | Always loaded |
+| Met Museum API | REST | None | NONE | Working |
+| Smithsonian API | REST | api.data.gov key | NONE | Working |
+| NGA Open Data | CSV/GitHub | None | NONE | Working |
+| Leland Little | JSON API scraper | None | LOW | Working |
+| Hilliard | HTML scraper | None | MODERATE | May need URL update |
+| CTBids | HTML scraper | None | MODERATE | React SPA |
+| Weschler's | HTML scraper | None | HIGH | Blocked by Cloudflare |
+| Quinn's | HTML scraper | None | HIGH | HiBid JS rendering |
+| Alex Cooper | HTML scraper | None | HIGH | Auction Mobility platform |
+| Potomack | HTML scraper | None | HIGH | Blocked by Cloudflare |
+| Bunch | HTML scraper | None | HIGH | Auction Mobility platform |
+| Headley's | HTML scraper | None | HIGH | HiBid JS rendering |
 
 ## PR / Commit Guidelines
 
 - Commit messages should be concise and describe the "why" not the "what"
 - Run `python -m pytest tests/ -v` before every commit
-- Verify all tests pass (currently 143)
+- Verify all tests pass (currently 205)
 - Group related changes into single commits (e.g., "Add Smithsonian API integration" not separate commits for code + tests)

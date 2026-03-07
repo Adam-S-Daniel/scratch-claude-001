@@ -344,3 +344,35 @@ app = DataLoader().load_into_app(
 ```
 
 The `DataLoader` handles everything: reading seed JSON files, calling museum APIs, downloading CSV data, scraping auction house websites, converting responses to the app's model format, and wiring it all into a ready-to-use `ArtMarketApp` instance.
+
+## Risk-Level Filtering
+
+The `DataLoader` now accepts a `max_risk` parameter that controls which sources are used based on their terms-of-service risk level. Sources above the threshold are automatically skipped unless they have a written agreement.
+
+```python
+from src.source_registry import RiskLevel
+from src.data_loader import DataLoader
+
+# Only CC0/official API sources (Met, Smithsonian, NGA)
+app = DataLoader(max_risk=RiskLevel.NONE).load_into_app(fetch_met=True, fetch_nga=True)
+
+# Include sources without explicit scraping prohibition (adds Leland Little)
+app = DataLoader(max_risk=RiskLevel.LOW).load_into_app(scrape_sites=["all"])
+
+# Include ambiguous sources (adds Hilliard, CTBids)
+app = DataLoader(max_risk=RiskLevel.MODERATE).load_into_app(scrape_sites=["all"])
+
+# All sources including those that explicitly prohibit scraping (default)
+app = DataLoader(max_risk=RiskLevel.HIGH).load_into_app(scrape_sites=["all"])
+
+# Override with a written agreement
+loader = DataLoader(max_risk=RiskLevel.NONE)
+loader.registry.set_agreement("weschlers", True)  # You have permission
+app = loader.load_into_app(scrape_sites=["weschlers"])
+
+# Configure API key GitHub Secrets name
+loader = DataLoader()
+loader.registry.set_api_key_secret("smithsonian", "MY_ORG_SI_KEY")
+```
+
+Risk levels are defined in `src/source_registry.py` and documented in `notes/terms-of-service.md` and `skills/assess-risk/SKILL.md`.

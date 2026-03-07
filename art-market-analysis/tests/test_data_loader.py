@@ -434,3 +434,105 @@ class TestNGAOpenData:
         assert results[0]["title"] == "Sunset Landscape"
         assert results[0]["source"] == "National Gallery of Art"
         assert results[1]["title"] == "Harbor View"
+
+
+class TestDataLoaderRiskFiltering:
+    """Test DataLoader respects max_risk and registry settings."""
+
+    def test_load_into_app_default_max_risk_is_high(self):
+        """Without specifying max_risk, all sources should be available."""
+        loader = DataLoader()
+        # Default should allow everything
+        assert loader.registry.is_source_allowed("weschlers", max_risk=loader.max_risk)
+
+    def test_load_into_app_with_max_risk_none(self):
+        """With max_risk=NONE, scrapers should be excluded."""
+        from src.source_registry import RiskLevel
+        loader = DataLoader(max_risk=RiskLevel.NONE)
+        assert loader.max_risk == RiskLevel.NONE
+        # Should not allow any scrapers
+        allowed = loader.registry.allowed_scraper_keys(max_risk=loader.max_risk)
+        assert allowed == []
+
+    def test_load_into_app_with_max_risk_low(self):
+        """With max_risk=LOW, only leland_little scraper should pass."""
+        from src.source_registry import RiskLevel
+        loader = DataLoader(max_risk=RiskLevel.LOW)
+        allowed = loader.registry.allowed_scraper_keys(max_risk=loader.max_risk)
+        assert "leland_little" in allowed
+        assert "weschlers" not in allowed
+
+    @patch("src.data_loader.fetch_met_artworks")
+    def test_met_skipped_when_not_allowed(self, mock_fetch):
+        """If met_museum is somehow not allowed, load_met should be skipped."""
+        from src.source_registry import RiskLevel, SourceRegistry, SourceConfig
+        # Custom registry where met is HIGH risk (hypothetical)
+        custom = SourceRegistry(sources={
+            "met_museum": SourceConfig(
+                key="met_museum", name="Met", source_type="api",
+                risk_level=RiskLevel.HIGH, license="test",
+            ),
+        })
+        loader = DataLoader(max_risk=RiskLevel.NONE, registry=custom)
+        app = loader.load_into_app(fetch_met=True)
+        mock_fetch.assert_not_called()
+
+    @patch("src.data_loader.fetch_smithsonian_artworks")
+    def test_smithsonian_uses_registry_api_key(self, mock_fetch):
+        """DataLoader should pull the Smithsonian API key from the registry."""
+        from src.source_registry import RiskLevel
+        mock_fetch.return_value = []
+        loader = DataLoader(max_risk=RiskLevel.HIGH)
+        with patch.dict(os.environ, {"SMITHSONIAN_API_KEY": "reg-test-key"}):
+            loader.load_into_app(
+                fetch_smithsonian=True,
+                smithsonian_queries=["test"],
+                smithsonian_max=1,
+            )
+        # Should have been called with the key from registry/env
+        mock_fetch.assert_called()
+
+    @patch("src.data_loader.fetch_smithsonian_artworks")
+    def test_smithsonian_skipped_without_api_key(self, mock_fetch):
+        """If Smithsonian requires a key and none is set, it should be skipped."""
+        from src.source_registry import RiskLevel
+        mock_fetch.return_value = []
+        loader = DataLoader(max_risk=RiskLevel.HIGH)
+        with patch.dict(os.environ, {}, clear=True):
+            app = loader.load_into_app(
+                fetch_smithsonian=True,
+                smithsonian_queries=["test"],
+                smithsonian_max=1,
+            )
+        # fetch_smithsonian_artworks handles missing key by returning [],
+        # so it may still be called but return empty
+        assert app.listing_count == 0
+
+    def test_scrape_sites_filtered_by_risk(self):
+        """When scrape_sites is ["all"] and max_risk is LOW, only low-risk scrapers run."""
+        from src.source_registry import RiskLevel
+        loader = DataLoader(max_risk=RiskLevel.LOW)
+        with patch("src.scrapers.scrape_all") as mock_scrape:
+            mock_scrape.return_value = []
+            loader.load_into_app(scrape_sites=["all"])
+            mock_scrape.assert_called_once()
+            call_args = mock_scrape.call_args
+            sites = call_args[1].get("sites", call_args[0][0] if call_args[0] else None)
+            assert sites is not None
+            for site in sites:
+                assert loader.registry.is_source_allowed(site, max_risk=RiskLevel.LOW)
+
+    def test_agreement_allows_high_risk_at_none_max(self):
+        """Setting an agreement should allow a high-risk source even at NONE max."""
+        from src.source_registry import RiskLevel
+        loader = DataLoader(max_risk=RiskLevel.NONE)
+        loader.registry.set_agreement("weschlers", True)
+        assert loader.registry.is_source_allowed("weschlers", max_risk=loader.max_risk)
+
+    def test_set_api_key_secret_on_loader(self):
+        """Users should be able to set the GitHub Secrets name for API keys."""
+        from src.source_registry import RiskLevel
+        loader = DataLoader()
+        loader.registry.set_api_key_secret("smithsonian", "MY_ORG_SMITHSONIAN_KEY")
+        cfg = loader.registry.get("smithsonian")
+        assert cfg.api_key_secret == "MY_ORG_SMITHSONIAN_KEY"

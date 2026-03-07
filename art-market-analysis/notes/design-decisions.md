@@ -158,3 +158,14 @@ Every component was built test-first:
 5. Move to the next module
 
 This approach caught a real bug in the test data itself — a price range test expected 2 results but 3 listings fell in range. The TDD cycle surfaced this immediately rather than letting a wrong assumption propagate.
+
+## 9. Source Registry with Risk-Level Filtering
+
+Each data source is assigned a risk level (NONE, LOW, MODERATE, HIGH) based on its terms of service, documented in `notes/terms-of-service.md`. The `SourceRegistry` in `src/source_registry.py` tracks these levels alongside written agreements and API key configuration.
+
+Key design choices:
+- **IntEnum for risk levels**: `RiskLevel` extends `IntEnum` so risk levels are naturally comparable with `<`, `<=`, `>=` operators. This avoids complex if/else chains in filtering logic.
+- **Agreement override**: A `has_agreement` flag on `SourceConfig` bypasses the risk check entirely. This models the real-world scenario where a negotiated agreement supersedes the default ToS analysis.
+- **Fail-safe defaults**: `RiskLevel.from_string()` returns HIGH for unrecognized values, and the default `max_risk` on DataLoader is HIGH (allow everything), ensuring backward compatibility with existing code.
+- **Registry per-instance**: Each `DataLoader` gets its own `SourceRegistry` copy, so agreement/API key changes don't leak between instances.
+- **API key configuration**: `SourceConfig` separates the env var name (`api_key_env`) from the GitHub Secrets name (`api_key_secret`), allowing CI/CD documentation without coupling to runtime key retrieval.
