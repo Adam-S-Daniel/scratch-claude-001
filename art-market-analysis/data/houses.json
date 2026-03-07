@@ -65,6 +65,26 @@
     "region": "mid-atlantic"
   },
   {
+    "name": "Hilliard & Co.",
+    "location": "Madison, VA",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "William Bunch Auctions",
+    "location": "Chadds Ford, PA",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "Headley's Auctions",
+    "location": "Winchester, VA",
+    "region": "mid-atlantic"
+  },
+  {
+    "name": "CTBids",
+    "location": "Cincinnati, OH",
+    "region": "national"
+  },
+  {
     "name": "Christie's",
     "location": "New York, NY",
     "region": "northeast"

@@ -451,6 +451,22 @@ class DataLoader:
         results = fetch_nga_artworks(max_results=max_results)
         self.listings.extend(results)
 
+    def load_scraped_records(
+        self,
+        sites: List[str] | None = None,
+        max_per_site: int = 50,
+    ) -> None:
+        """Scrape past auction results from auction house websites.
+
+        Args:
+            sites: List of scraper keys (e.g. ["leland_little", "weschlers"]).
+                If None, runs all scrapers.
+            max_per_site: Maximum results per site.
+        """
+        from src.scrapers import scrape_all
+        records = scrape_all(sites=sites, max_per_site=max_per_site)
+        self.auction_records.extend(records)
+
     def load_into_app(
         self,
         fetch_met: bool = False,
@@ -462,6 +478,8 @@ class DataLoader:
         smithsonian_max: int = 10,
         fetch_nga: bool = False,
         nga_max: int = 50,
+        scrape_sites: List[str] | None = None,
+        scrape_max: int = 50,
     ) -> ArtMarketApp:
         """Load all data and return a fully populated ArtMarketApp.
 
@@ -475,6 +493,10 @@ class DataLoader:
             smithsonian_max: Max results per Smithsonian query.
             fetch_nga: Whether to fetch from NGA open data.
             nga_max: Max NGA results to return.
+            scrape_sites: List of auction house scraper keys to run.
+                Pass an empty list to skip scraping. Pass None to skip
+                (use ["all"] or specific keys to enable).
+            scrape_max: Max results per scraped site.
 
         Returns:
             A ready-to-use ArtMarketApp instance.
@@ -493,6 +515,9 @@ class DataLoader:
 
         if fetch_nga:
             self.load_nga_listings(max_results=nga_max)
+
+        if scrape_sites is not None:
+            self.load_scraped_records(sites=scrape_sites, max_per_site=scrape_max)
 
         app = ArtMarketApp()
         app.load_houses(self.houses)

@@ -3,7 +3,7 @@
 *2026-03-07T04:50:07Z by Showboat 0.6.1*
 <!-- showboat-id: 01719b64-0bdc-4526-9ce0-776ac180eea1 -->
 
-The app now loads data automatically from four real sources:
+The app now loads data automatically from five source types:
 
 1. **Seed data files** (`data/houses.json`, `data/auction_records.json`): Curated records from 13 real mid-Atlantic auction houses (Freeman's, Weschler's, Doyle, Pook & Pook, Brunk Auctions, Potomack Company, Alex Cooper, etc.) plus 3 major New York houses for comparison. 38 auction records with realistic prices based on actual market patterns for American paintings, furniture, silver, textiles, and decorative arts.
 
@@ -12,6 +12,8 @@ The app now loads data automatically from four real sources:
 3. **Smithsonian Open Access API** (https://www.si.edu/openaccess/devtools): Free, requires an API key from api.data.gov. Searches across 21 museums including the Smithsonian American Art Museum (SAAM) and Hirshhorn in Washington, DC. Returns 5.1M+ items under CC0 license. The API returns nested JSON structures that are flattened to extract artist, medium, object type, and physical description.
 
 4. **National Gallery of Art Open Data** (https://github.com/NationalGalleryOfArt/opendata): Free CSV files on GitHub, 130,000+ artworks under CC0 license. The app downloads the objects CSV, filters to American artworks by nationality, and converts rows to listing format. Updated daily by NGA.
+
+5. **Auction house web scrapers** (`src/scrapers.py`): Scrapes past auction results directly from 9 mid-Atlantic auction house websites. Includes Leland Little (Vue.js API), Weschler's, Quinn's, Alex Cooper, Hilliard & Co., Potomack Company, William Bunch, Headley's (HiBid), and CTBids. Each scraper handles the site's specific HTML structure or API, extracting lot number, title, artist, medium, hammer price, and sale date. Results are added as auction records (not listings).
 
 ## Test Suite
 
@@ -319,6 +321,12 @@ app = DataLoader().load_into_app(
 # With National Gallery of Art open data (free, no key needed)
 app = DataLoader().load_into_app(fetch_nga=True, nga_max=100)
 
+# Scrape past results from specific auction house websites
+app = DataLoader().load_into_app(
+    scrape_sites=["leland_little", "weschlers", "potomack"],
+    scrape_max=50,
+)
+
 # All sources at once
 app = DataLoader().load_into_app(
     fetch_met=True,
@@ -329,7 +337,10 @@ app = DataLoader().load_into_app(
     smithsonian_max=20,
     fetch_nga=True,
     nga_max=50,
+    scrape_sites=["leland_little", "weschlers", "quinns", "alex_cooper",
+                  "hilliard", "potomack", "bunch", "headleys", "ctbids"],
+    scrape_max=50,
 )
 ```
 
-The `DataLoader` handles everything: reading seed JSON files, calling museum APIs, downloading CSV data, converting responses to the app's model format, and wiring it all into a ready-to-use `ArtMarketApp` instance.
+The `DataLoader` handles everything: reading seed JSON files, calling museum APIs, downloading CSV data, scraping auction house websites, converting responses to the app's model format, and wiring it all into a ready-to-use `ArtMarketApp` instance.
