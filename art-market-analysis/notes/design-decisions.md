@@ -137,7 +137,17 @@ Each source has its own `fetch_*` function and `*_to_listing()` converter, follo
 
 This design keeps sources independent: adding a new source means writing one fetch function and one converter, then adding a flag to `DataLoader.load_into_app()`.
 
-## 7. Red/Green TDD Discipline
+## 7. Stdlib-Only Web Scrapers
+
+The auction house scrapers in `src/scrapers.py` use only Python's standard library — `urllib.request` for HTTP, `html.parser.HTMLParser` for HTML parsing, and `json` for API responses. No BeautifulSoup, Selenium, or other external dependencies.
+
+A generic `_LotHTMLParser` class handles the common case: auction result pages that use CSS classes like `lot-item`, `auction-lot`, `result-item`, or `catalog-item` to wrap lot data. Site-specific scrapers override this only when the site uses a JSON API (Leland Little) or has unusual structure.
+
+Shared utilities (`_classify_from_text`, `_extract_artist`, `_parse_price`) are reused across all scrapers and tested independently. The `SCRAPERS` registry dict maps site keys to `{function, auction_house, url}` for easy orchestration via `scrape_all()`.
+
+Known limitations: several sites (Weschler's, Potomack) use Cloudflare protection that blocks automated requests. HiBid-based sites (Quinn's, Headley's) and React SPAs (CTBids) render content client-side, so the HTML parser may return empty results. Future work could add JavaScript rendering support or use aggregator APIs (Invaluable, LiveAuctioneers) as proxies.
+
+## 8. Red/Green TDD Discipline
 
 Every component was built test-first:
 

@@ -3,22 +3,23 @@
 *2026-03-07T03:00:40Z by Showboat 0.6.1*
 <!-- showboat-id: d047509d-d616-4825-a481-1d4e593e277f -->
 
-This document runs the full test suite for the art market analysis app and demonstrates that all 100 tests pass across every module. The app was built using strict red/green TDD — every test was written before its implementation.
+This document runs the full test suite for the art market analysis app and demonstrates that all 143 tests pass across every module. The app was built using strict red/green TDD — every test was written before its implementation.
 
 ## Module Overview
 
-The test suite is organized into 7 test files mirroring the source modules:
+The test suite is organized into 9 test files mirroring the source modules:
 
-| Test File | Source Module | What It Tests |
-|---|---|---|
-| test_models.py | models.py | Domain objects, unidentified artist detection |
-| test_repositories.py | repositories.py | In-memory storage and querying |
-| test_tracker.py | tracker.py | Mid-Atlantic region filtering |
-| test_opportunity.py | opportunity.py | Price comparison and buying opportunities |
-| test_unidentified.py | unidentified.py | Promising unattributed work scoring |
-| test_gap_detector.py | gap_detector.py | Market gap detection across dimensions |
-| test_data_loader.py | data_loader.py | Seed files, Met/Smithsonian/NGA APIs |
-| test_app.py | app.py | Full orchestrator integration |
+| Test File | Source Module | Tests | What It Tests |
+|---|---|---|---|
+| test_models.py | models.py | 11 | Domain objects, unidentified artist detection |
+| test_repositories.py | repositories.py | 15 | In-memory storage and querying |
+| test_tracker.py | tracker.py | 6 | Mid-Atlantic region filtering |
+| test_opportunity.py | opportunity.py | 8 | Price comparison and buying opportunities |
+| test_unidentified.py | unidentified.py | 8 | Promising unattributed work scoring |
+| test_gap_detector.py | gap_detector.py | 7 | Market gap detection across dimensions |
+| test_data_loader.py | data_loader.py | 34 | Seed files, Met/Smithsonian/NGA APIs, DataLoader orchestration |
+| test_app.py | app.py | 9 | Full orchestrator integration |
+| test_scrapers.py | scrapers.py | 45 | Category classification, artist extraction, price parsing, HTML parsing, per-site scrapers, scrape_all orchestrator |
 
 ## Full Test Suite Run
 
@@ -101,7 +102,7 @@ tests/test_unidentified.py::TestUnidentifiedArtistAnalyzer::test_score_listing P
 ============================== 64 passed in 0.14s ==============================
 ```
 
-All 100 tests pass. The suite covers:
+All 143 tests pass. The suite covers:
 
 - **11 model tests**: Object creation, equality, serialization, unidentified artist detection across 7 label variants
 - **15 repository tests**: CRUD, filtering by artist/category/date/price, bulk loading
@@ -109,8 +110,9 @@ All 100 tests pass. The suite covers:
 - **8 opportunity tests**: Underpriced/overpriced detection, artist comparison, sorted output, category price gaps
 - **8 unidentified tests**: Auction/listing filtering, promising work detection by category and medium, scoring
 - **7 gap detector tests**: Category/medium/artist gaps, untracked categories, market summary, top opportunities
-- **36 data loader tests**: Seed file validation, Met API integration (mocked), Smithsonian API integration (mocked), NGA CSV parsing (mocked), DataLoader orchestration with all sources
+- **34 data loader tests**: Seed file validation, Met API integration (mocked), Smithsonian API integration (mocked), NGA CSV parsing (mocked), DataLoader orchestration with all sources
 - **9 app tests**: Data loading, regional tracking, all analyzers via orchestrator, report generation
+- **45 scraper tests**: Category classification (11), artist extraction (6), price parsing (7), lot-to-record conversion (6), HTML parsing (3), Leland Little API (4), Weschler's HTML (2), scrape_all orchestrator (3), DataLoader integration (1), scraper registry (2)
 
 ## Individual Module Tests
 

@@ -7,7 +7,7 @@ This document walks through the app end-to-end, showing exactly how data flows f
 
 ## Step 1: Load Data
 
-The app consumes three types of data: auction house definitions, past auction sale records, and current art listings. Data can come from seed JSON files, the Met Museum API, the Smithsonian Open Access API, or National Gallery of Art open data. All data is loaded as dictionaries.
+The app consumes three types of data: auction house definitions, past auction sale records, and current art listings. Data can come from seed JSON files, the Met Museum API, the Smithsonian Open Access API, National Gallery of Art open data, or web scrapers for 9 mid-Atlantic auction house websites. All data is loaded as dictionaries.
 
 ```python3
 

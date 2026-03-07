@@ -324,10 +324,32 @@ app = DataLoader().load_into_app(
 ```
 
 Available data sources:
-- **Seed data**: Always loaded. 16 auction houses, 38 records.
+- **Seed data**: Always loaded. 20 auction houses, 38 records.
 - **Met Museum API**: Free, no key. American art objects as listings.
 - **Smithsonian API**: Free, key from api.data.gov. 5.1M+ items across 21 museums (CC0).
 - **NGA Open Data**: Free CSV from GitHub. 130K+ artworks (CC0).
+- **Auction house scrapers**: 9 mid-Atlantic auction house websites. Returns past results as auction records.
+
+### Using Scrapers
+
+```python
+from src.data_loader import DataLoader
+
+# Scrape specific auction houses
+app = DataLoader().load_into_app(
+    scrape_sites=["leland_little", "weschlers", "potomack"],
+    scrape_max=50,
+)
+
+# All 9 scrapers at once
+app = DataLoader().load_into_app(
+    scrape_sites=["leland_little", "weschlers", "quinns", "alex_cooper",
+                  "hilliard", "potomack", "bunch", "headleys", "ctbids"],
+    scrape_max=50,
+)
+```
+
+Available scraper keys: `leland_little`, `weschlers`, `quinns`, `alex_cooper`, `hilliard`, `potomack`, `bunch`, `headleys`, `ctbids`.
 
 ## Running Tests
 
@@ -337,4 +359,4 @@ Run the full test suite to verify everything works:
 pytest tests/ -v --tb=short 2>&1 | tail -5
 ```
 
-The suite includes 100 tests across all modules, including 36 data loader tests covering all four sources.
+The suite includes 143 tests across 9 test modules, covering all source modules including scrapers.
