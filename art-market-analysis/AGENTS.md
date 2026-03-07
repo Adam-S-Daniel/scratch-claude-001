@@ -110,10 +110,27 @@ After making changes, update the relevant notes files:
 - `notes/data-loading.md` — Data sources and usage examples
 - `notes/usage-guide.md` — User-facing guide with code examples
 - `notes/design-decisions.md` — Architectural rationale
-- `notes/how-it-works.md` — End-to-end walkthrough
+- `notes/how-it-works.md` — End-to-end walkthrough (**see special rule below**)
 - `notes/known-limitations.md` — Known issues and future work
 
 When adding features, update test counts in `notes/testing.md` and `notes/architecture.md`.
+
+### Always Keep how-it-works.md Up to Date
+
+**`notes/how-it-works.md` must stay current with the actual codebase.** After any change that affects the data flow, analysis pipeline, source registry, DataLoader parameters, report format, or module interactions, update `notes/how-it-works.md` to reflect the new behavior. This includes:
+
+- Adding or removing data sources or scrapers
+- Changing the SourceRegistry, risk levels, or agreement logic
+- Modifying DataLoader's `load_into_app()` signature or behavior
+- Adding new analyzers or changing existing analysis methods
+- Changing the report format (text or data)
+- Modifying domain models (AuctionHouse, AuctionRecord, ArtListing)
+
+If you're unsure whether a change affects the walkthrough, err on the side of updating it.
+
+### Maintain the Changelog
+
+After every user-visible change, add an entry to `CHANGELOG.md` under the `[Unreleased]` section. When cutting a release, move unreleased entries under a new version heading. See the changelog file for format details.
 
 ### Maintain This File (AGENTS.md)
 

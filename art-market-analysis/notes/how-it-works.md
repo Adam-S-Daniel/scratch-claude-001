@@ -1,13 +1,68 @@
 # Art Market Analysis — How It Works
 
-*2026-03-07T03:04:02Z by Showboat 0.6.1*
-<!-- showboat-id: a5de2862-d9b4-450c-a163-78f4f74dcd9f -->
-
 This document walks through the app end-to-end, showing exactly how data flows from loading through analysis to a final report. We use realistic mid-Atlantic auction house data throughout.
 
-## Step 1: Load Data
+> **Keep this file up to date.** Any change to the data flow, analysis pipeline, source registry, or report format must be reflected here. See AGENTS.md for the full policy.
 
-The app consumes three types of data: auction house definitions, past auction sale records, and current art listings. Data can come from seed JSON files, the Met Museum API, the Smithsonian Open Access API, National Gallery of Art open data, or web scrapers for 9 mid-Atlantic auction house websites. All data is loaded as dictionaries.
+## Step 0: Configure Source Registry and Risk Filtering
+
+Before loading data, the `DataLoader` consults a `SourceRegistry` to decide which sources are allowed. Each source has a `RiskLevel` (NONE, LOW, MODERATE, HIGH) assessed from its terms of service. The caller sets a `max_risk` threshold — sources above that level are silently skipped unless they have a written agreement on file.
+
+```python3
+
+from src.source_registry import SourceRegistry, RiskLevel
+
+# Default registry has all 13 sources pre-configured
+registry = SourceRegistry()
+
+# Check what's allowed at LOW risk
+allowed = registry.allowed_sources(max_risk=RiskLevel.LOW)
+print(f'Sources allowed at LOW risk: {[s.name for s in allowed]}')
+
+# A written agreement overrides risk level
+registry.set_agreement("weschlers", True)
+print(f'Weschlers allowed after agreement: {registry.is_source_allowed("weschlers", max_risk=RiskLevel.LOW)}')
+
+```
+
+```output
+Sources allowed at LOW risk: ['Seed Data', 'Metropolitan Museum of Art', 'Smithsonian Open Access', 'National Gallery of Art', 'Leland Little Auctions']
+Weschlers allowed after agreement: True
+```
+
+Risk levels are defined in `src/source_registry.py` and documented in `notes/terms-of-service.md`:
+
+| Risk | Meaning | Examples |
+|------|---------|---------|
+| NONE | CC0/open license with official API | Met Museum, Smithsonian, NGA, seed data |
+| LOW | No explicit scraping prohibition found | Leland Little |
+| MODERATE | Terms unknown/unretrievable, or technical barriers | Hilliard, CTBids |
+| HIGH | Terms explicitly prohibit scraping/automated access | Weschler's, Quinn's, Alex Cooper, Potomack, Bunch, Headley's |
+
+API keys are resolved from the registry. The Smithsonian source has `api_key_env="SMITHSONIAN_API_KEY"` — the DataLoader reads this from the environment automatically when the caller doesn't provide one explicitly.
+
+## Step 1: Load Data via DataLoader
+
+The recommended way to load data is through `DataLoader`, which orchestrates all sources, applies risk filtering, and returns a ready-to-use `ArtMarketApp`. Each `load_*` method checks the registry before making any network calls.
+
+```python3
+
+from src.data_loader import DataLoader
+from src.source_registry import RiskLevel
+
+# Only allow NONE-risk sources (seed + museum APIs)
+loader = DataLoader(max_risk=RiskLevel.NONE)
+app = loader.load_into_app(fetch_met=True, met_max=5)
+
+print(f'Loaded {app.house_count} houses, {app.auction_count} auction records, {app.listing_count} listings')
+
+```
+
+```output
+Loaded 20 houses, 38 auction records, 15 listings
+```
+
+For direct control, you can also load data manually into `ArtMarketApp`:
 
 ```python3
 
@@ -458,3 +513,29 @@ MARKET GAPS (Categories Below Auction Values)
 
 ============================================================
 ```
+
+## Data Flow Summary
+
+```
+SourceRegistry (risk levels, agreements, API keys)
+        │
+        ▼
+DataLoader(max_risk=RiskLevel.LOW, registry=...)
+  ├─ load_seed_data()           → houses.json, auction_records.json
+  ├─ load_met_listings()        → Met Museum Collection API  [risk: NONE]
+  ├─ load_smithsonian_listings()→ Smithsonian Open Access API [risk: NONE, key required]
+  ├─ load_nga_listings()        → NGA open data CSV           [risk: NONE]
+  └─ load_scraped_records()     → 9 auction house scrapers    [risk: LOW–HIGH]
+        │                         (filtered by max_risk + agreements)
+        ▼
+ArtMarketApp (orchestrator)
+  ├─ MidAtlanticAuctionTracker  → regional summary
+  ├─ OpportunityAnalyzer        → buying opportunities
+  ├─ UnidentifiedArtistAnalyzer → promising unattributed works
+  └─ MarketGapDetector          → category/medium/artist gaps
+        │
+        ▼
+generate_text_report() / generate_report_data()
+```
+
+Each `load_*` method in DataLoader checks `registry.is_source_allowed(key, max_risk)` before making any network call. If the source is above the risk threshold and has no written agreement, the method returns immediately with no data. Scraper keys passed explicitly to `load_scraped_records()` are intersected with the allowed list, so even explicit requests for HIGH-risk scrapers are blocked when `max_risk` is set lower.
