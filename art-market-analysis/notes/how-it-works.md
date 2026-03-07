@@ -39,7 +39,166 @@ Risk levels are defined in `src/source_registry.py` and documented in `notes/ter
 | MODERATE | Terms unknown/unretrievable, or technical barriers | Hilliard, CTBids |
 | HIGH | Terms explicitly prohibit scraping/automated access | Weschler's, Quinn's, Alex Cooper, Potomack, Bunch, Headley's |
 
-API keys are resolved from the registry. The Smithsonian source has `api_key_env="SMITHSONIAN_API_KEY"` — the DataLoader reads this from the environment automatically when the caller doesn't provide one explicitly.
+### Configuring Risk Tolerance
+
+Pass `max_risk` to `DataLoader` to control which sources are used. Every `load_*` method silently skips sources above the threshold.
+
+```python3
+
+from src.data_loader import DataLoader
+from src.source_registry import RiskLevel
+
+# Conservative: only CC0/open-license sources (seed JSON, Met, Smithsonian, NGA)
+loader_safe = DataLoader(max_risk=RiskLevel.NONE)
+
+# Moderate: also includes Leland Little (no scraping prohibition found)
+loader_mid = DataLoader(max_risk=RiskLevel.LOW)
+
+# Permissive: includes Hilliard and CTBids (unknown/unretrievable terms)
+loader_wide = DataLoader(max_risk=RiskLevel.MODERATE)
+
+# Default: everything, including HIGH-risk scrapers
+loader_all = DataLoader(max_risk=RiskLevel.HIGH)
+
+# Show the scraper keys each loader would allow
+for label, ldr in [("NONE", loader_safe), ("LOW", loader_mid),
+                    ("MODERATE", loader_wide), ("HIGH", loader_all)]:
+    keys = ldr.registry.allowed_scraper_keys(max_risk=ldr.max_risk)
+    print(f'{label:>8}: {keys}')
+
+```
+
+```output
+    NONE: []
+     LOW: ['leland_little']
+MODERATE: ['leland_little', 'hilliard', 'ctbids']
+    HIGH: ['leland_little', 'hilliard', 'ctbids', 'weschlers', 'quinns', 'alex_cooper', 'potomack', 'bunch', 'headleys']
+```
+
+### Written Agreements
+
+A written agreement overrides the risk check for a specific source. This lets you use a HIGH-risk scraper under a LOW-risk policy when you've negotiated permission with the auction house.
+
+```python3
+
+from src.source_registry import SourceRegistry, RiskLevel
+
+registry = SourceRegistry()
+
+# Weschler's is HIGH risk — blocked at LOW by default
+print(f'Before agreement: {registry.is_source_allowed("weschlers", max_risk=RiskLevel.LOW)}')
+
+# Record that we have a written agreement with Weschler's
+registry.set_agreement("weschlers", True)
+print(f'After agreement:  {registry.is_source_allowed("weschlers", max_risk=RiskLevel.LOW)}')
+
+# Revoke the agreement
+registry.set_agreement("weschlers", False)
+print(f'After revocation: {registry.is_source_allowed("weschlers", max_risk=RiskLevel.LOW)}')
+
+```
+
+```output
+Before agreement: False
+After agreement:  True
+After revocation: False
+```
+
+Pass a customized registry to `DataLoader` to use it:
+
+```python3
+
+from src.data_loader import DataLoader
+from src.source_registry import SourceRegistry, RiskLevel
+
+registry = SourceRegistry()
+registry.set_agreement("weschlers", True)
+registry.set_agreement("potomack", True)
+
+# LOW risk, but Weschler's and Potomack are allowed via agreement
+loader = DataLoader(max_risk=RiskLevel.LOW, registry=registry)
+keys = loader.registry.allowed_scraper_keys(max_risk=loader.max_risk)
+print(f'Allowed scrapers: {keys}')
+
+```
+
+```output
+Allowed scrapers: ['leland_little', 'weschlers', 'potomack']
+```
+
+### API Key Configuration
+
+API keys are resolved from environment variables configured on each `SourceConfig`. The Smithsonian source has `api_key_env="SMITHSONIAN_API_KEY"` — the DataLoader reads this from the environment automatically when the caller doesn't provide one explicitly.
+
+```python3
+
+from src.source_registry import SourceRegistry
+
+registry = SourceRegistry()
+si = registry.get("smithsonian")
+print(f'Source:       {si.name}')
+print(f'Requires key: {si.requires_api_key}')
+print(f'Env var:      {si.api_key_env}')
+print(f'Secret name:  {si.api_key_secret}')
+
+# Configure a GitHub Secrets name for CI/CD
+registry.set_api_key_secret("smithsonian", "SI_API_KEY_PROD")
+print(f'Updated secret: {registry.get("smithsonian").api_key_secret}')
+
+```
+
+```output
+Source:       Smithsonian Open Access
+Requires key: True
+Env var:      SMITHSONIAN_API_KEY
+Secret name:  SMITHSONIAN_API_KEY
+Updated secret: SI_API_KEY_PROD
+```
+
+To set the key at runtime, either export the environment variable before running the app, or pass it directly to `load_smithsonian_listings()`:
+
+```bash
+# Option A: environment variable (recommended for CI/CD)
+export SMITHSONIAN_API_KEY="your-api-key-here"
+python -c "from src.data_loader import DataLoader; DataLoader().load_into_app(fetch_smithsonian=True)"
+
+# Option B: pass directly
+python -c "
+from src.data_loader import DataLoader
+loader = DataLoader()
+loader.load_smithsonian_listings(api_key='your-api-key-here')
+"
+```
+
+### Custom Source Configurations
+
+You can build a registry from scratch with only the sources you need:
+
+```python3
+
+from src.source_registry import SourceRegistry, SourceConfig, RiskLevel
+
+custom_sources = {
+    "seed": SourceConfig(
+        key="seed", name="Seed Data", source_type="seed",
+        risk_level=RiskLevel.NONE, license="Internal",
+    ),
+    "met_museum": SourceConfig(
+        key="met_museum", name="Met Museum", source_type="api",
+        risk_level=RiskLevel.NONE, license="CC0",
+    ),
+}
+
+registry = SourceRegistry(sources=custom_sources)
+print(f'Total sources: {len(registry.all_sources())}')
+print(f'Names: {[s.name for s in registry.all_sources()]}')
+
+```
+
+```output
+Total sources: 2
+Names: ['Seed Data', 'Met Museum']
+```
 
 ## Step 1: Load Data via DataLoader
 

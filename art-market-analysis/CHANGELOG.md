@@ -15,6 +15,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html):
 - Updated `notes/how-it-works.md` to document DataLoader, source registry, and risk filtering workflow
 - Added AGENTS.md instructions requiring how-it-works.md to stay in sync with code changes
 - Added versioning and changelog system
+- Expanded how-it-works.md with detailed source registry configuration examples (risk tolerance, written agreements, API keys, custom registries)
 
 ## [0.4.0] - 2026-03-07
 
