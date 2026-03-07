@@ -348,5 +348,35 @@
     "hammer_price": 28000,
     "auction_house": "Sloans & Kenyon",
     "category": "furniture"
+  },
+  {
+    "lot_number": "1001",
+    "title": "Potomac River at Great Falls",
+    "artist": "William MacLeod",
+    "medium": "oil on canvas",
+    "date_sold": "2024-06-08",
+    "hammer_price": 38000,
+    "auction_house": "Doyle",
+    "category": "painting"
+  },
+  {
+    "lot_number": "1002",
+    "title": "Silver Coffee Urn, Federal Period",
+    "artist": "Charles A. Burnett",
+    "medium": "silver",
+    "date_sold": "2024-09-15",
+    "hammer_price": 16500,
+    "auction_house": "Doyle",
+    "category": "decorative_arts"
+  },
+  {
+    "lot_number": "1003",
+    "title": "Virginia Hunt Country Landscape",
+    "artist": "Unknown Artist",
+    "medium": "oil on canvas",
+    "date_sold": "2024-11-22",
+    "hammer_price": 5800,
+    "auction_house": "Doyle",
+    "category": "painting"
   }
 ]

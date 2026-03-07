@@ -1,4 +1,4 @@
-"""Tests for automated data loading from seed files and the Met Museum API."""
+"""Tests for automated data loading from seed files and museum APIs."""
 import json
 import os
 from datetime import date
@@ -10,6 +10,11 @@ from src.data_loader import (
     load_seed_auction_records,
     fetch_met_artworks,
     met_object_to_listing,
+    fetch_smithsonian_artworks,
+    smithsonian_object_to_listing,
+    _flatten_smithsonian_row,
+    fetch_nga_artworks,
+    nga_object_to_listing,
 )
 
 
@@ -213,3 +218,219 @@ class TestDataLoader:
         assert app.house_count >= 5
         assert app.auction_count >= 20
         assert app.listing_count == 0  # no listings without Met fetch
+
+    @patch("src.data_loader.fetch_smithsonian_artworks")
+    def test_load_with_smithsonian_listings(self, mock_fetch):
+        mock_fetch.return_value = [
+            {
+                "listing_id": "si-saam_12345",
+                "title": "American Landscape",
+                "artist": "George Inness",
+                "medium": "Oil on canvas",
+                "asking_price": 35000,
+                "source": "Smithsonian Open Access",
+                "category": "painting",
+                "date_listed": date.today().isoformat(),
+            },
+        ]
+        loader = DataLoader()
+        app = loader.load_into_app(
+            fetch_smithsonian=True,
+            smithsonian_queries=["painting"],
+            smithsonian_key="test-key",
+            smithsonian_max=1,
+        )
+        assert app.listing_count >= 1
+
+    @patch("src.data_loader.fetch_nga_artworks")
+    def test_load_with_nga_listings(self, mock_fetch):
+        mock_fetch.return_value = [
+            {
+                "listing_id": "nga-12345",
+                "title": "The Voyage of Life",
+                "artist": "Thomas Cole",
+                "medium": "oil on canvas",
+                "asking_price": 55000,
+                "source": "National Gallery of Art",
+                "category": "painting",
+                "date_listed": date.today().isoformat(),
+            },
+        ]
+        loader = DataLoader()
+        app = loader.load_into_app(fetch_nga=True, nga_max=1)
+        assert app.listing_count >= 1
+
+
+class TestSmithsonianAPI:
+    """Test Smithsonian Open Access API integration with mocked calls."""
+
+    SAMPLE_SEARCH_RESULT = {
+        "id": "edanmdm-saam_1234",
+        "title": "Autumn Landscape",
+        "content": {
+            "descriptiveNonRepeating": {
+                "record_ID": "saam_1234",
+                "title": {"content": "Autumn Landscape"},
+            },
+            "freetext": {
+                "name": [{"content": "George Inness", "label": "Artist"}],
+                "physicalDescription": [
+                    {"content": "oil on canvas", "label": "Medium"}
+                ],
+            },
+            "indexedStructured": {
+                "object_type": ["Paintings"],
+            },
+        },
+    }
+
+    SAMPLE_SEARCH_RESULT_NO_ARTIST = {
+        "id": "edanmdm-saam_9999",
+        "title": "Untitled Portrait",
+        "content": {
+            "descriptiveNonRepeating": {
+                "record_ID": "saam_9999",
+                "title": {"content": "Untitled Portrait"},
+            },
+            "freetext": {
+                "physicalDescription": [
+                    {"content": "oil on canvas", "label": "Medium"}
+                ],
+            },
+            "indexedStructured": {
+                "object_type": ["Paintings"],
+            },
+        },
+    }
+
+    def test_flatten_smithsonian_row(self):
+        flat = _flatten_smithsonian_row(self.SAMPLE_SEARCH_RESULT)
+        assert flat["id"] == "saam_1234"
+        assert flat["name"] == "George Inness"
+        assert flat["physicalDescription"] == "oil on canvas"
+        assert flat["type"] == "Paintings"
+
+    def test_smithsonian_object_to_listing_basic(self):
+        flat = _flatten_smithsonian_row(self.SAMPLE_SEARCH_RESULT)
+        listing = smithsonian_object_to_listing(flat)
+        assert listing["listing_id"] == "si-saam_1234"
+        assert listing["artist"] == "George Inness"
+        assert listing["source"] == "Smithsonian Open Access"
+        assert listing["category"] == "painting"
+        assert listing["asking_price"] > 0
+
+    def test_smithsonian_object_no_artist(self):
+        flat = _flatten_smithsonian_row(self.SAMPLE_SEARCH_RESULT_NO_ARTIST)
+        listing = smithsonian_object_to_listing(flat)
+        assert listing["artist"] == "Unknown Artist"
+
+    @patch("src.data_loader._fetch_json")
+    def test_fetch_smithsonian_artworks_calls_api(self, mock_fetch):
+        mock_fetch.return_value = {
+            "response": {
+                "rows": [self.SAMPLE_SEARCH_RESULT],
+            },
+        }
+        results = fetch_smithsonian_artworks(
+            query="american painting", api_key="test-key", max_results=5
+        )
+        assert len(results) == 1
+        assert results[0]["source"] == "Smithsonian Open Access"
+
+    def test_fetch_smithsonian_artworks_no_key_returns_empty(self):
+        """Without an API key, should return empty list."""
+        with patch.dict(os.environ, {}, clear=True):
+            results = fetch_smithsonian_artworks(
+                query="painting", api_key=None, max_results=5
+            )
+        assert results == []
+
+    @patch("src.data_loader._fetch_json")
+    def test_fetch_smithsonian_artworks_handles_error(self, mock_fetch):
+        mock_fetch.side_effect = Exception("Network error")
+        results = fetch_smithsonian_artworks(
+            query="painting", api_key="test-key", max_results=5
+        )
+        assert results == []
+
+
+class TestNGAOpenData:
+    """Test National Gallery of Art open data integration."""
+
+    def test_nga_object_to_listing_basic(self):
+        row = {
+            "objectID": "12345",
+            "title": "The Voyage of Life: Youth",
+            "attribution": "Thomas Cole",
+            "medium": "oil on canvas",
+            "classification": "Painting",
+        }
+        listing = nga_object_to_listing(row)
+        assert listing is not None
+        assert listing["listing_id"] == "nga-12345"
+        assert listing["title"] == "The Voyage of Life: Youth"
+        assert listing["artist"] == "Thomas Cole"
+        assert listing["source"] == "National Gallery of Art"
+        assert listing["category"] == "painting"
+        assert listing["asking_price"] > 0
+
+    def test_nga_object_to_listing_no_artist(self):
+        row = {
+            "objectID": "67890",
+            "title": "Still Life with Fruit",
+            "attribution": "",
+            "medium": "oil on canvas",
+            "classification": "Painting",
+        }
+        listing = nga_object_to_listing(row)
+        assert listing is not None
+        assert listing["artist"] == "Unknown Artist"
+
+    def test_nga_object_to_listing_missing_id(self):
+        row = {"title": "Some Painting", "objectID": ""}
+        listing = nga_object_to_listing(row)
+        assert listing is None
+
+    def test_nga_object_to_listing_missing_title(self):
+        row = {"objectID": "123", "title": ""}
+        listing = nga_object_to_listing(row)
+        assert listing is None
+
+    def test_nga_object_to_listing_sculpture(self):
+        row = {
+            "objectID": "111",
+            "title": "Bronze Figure",
+            "attribution": "Augustus Saint-Gaudens",
+            "medium": "bronze",
+            "classification": "Sculpture",
+        }
+        listing = nga_object_to_listing(row)
+        assert listing is not None
+        assert listing["category"] == "sculpture"
+
+    @patch("src.data_loader.urlopen")
+    def test_fetch_nga_artworks_handles_error(self, mock_urlopen):
+        mock_urlopen.side_effect = Exception("Network error")
+        results = fetch_nga_artworks(max_results=5)
+        assert results == []
+
+    @patch("src.data_loader.urlopen")
+    def test_fetch_nga_artworks_parses_csv(self, mock_urlopen):
+        csv_content = (
+            "objectID,title,attribution,medium,classification,nationality\n"
+            "100,Sunset Landscape,Frederic Church,oil on canvas,Painting,American\n"
+            "101,French Garden,Claude Monet,oil on canvas,Painting,French\n"
+            "102,Harbor View,Winslow Homer,watercolor,Drawing,American\n"
+        )
+        mock_resp = MagicMock()
+        mock_resp.read.return_value = csv_content.encode("utf-8")
+        mock_resp.__enter__ = lambda s: s
+        mock_resp.__exit__ = MagicMock(return_value=False)
+        mock_urlopen.return_value = mock_resp
+
+        results = fetch_nga_artworks(max_results=10)
+        # Should only include American artworks (2 of 3)
+        assert len(results) == 2
+        assert results[0]["title"] == "Sunset Landscape"
+        assert results[0]["source"] == "National Gallery of Art"
+        assert results[1]["title"] == "Harbor View"
