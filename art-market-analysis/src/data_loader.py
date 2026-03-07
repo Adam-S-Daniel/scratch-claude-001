@@ -180,7 +180,8 @@ def _classify_smithsonian_object(obj: dict) -> str:
     """Map a Smithsonian object's type/physicalDescription to our categories."""
     obj_type = (obj.get("type") or "").lower()
     phys_desc = (obj.get("physicalDescription") or "").lower()
-    title = (obj.get("title") or "").lower()
+    raw_title = obj.get("title") or ""
+    title = (raw_title if isinstance(raw_title, str) else str(raw_title)).lower()
 
     for key, cat in _MET_CATEGORY_MAP.items():
         if key in obj_type or key in phys_desc:
