@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "agentskills": {
+      "source": {
+        "source": "github",
+        "repo": "Adam-S-Daniel/agentskills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "pin-actions-to-sha@agentskills": true
+  }
+}
