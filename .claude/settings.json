@@ -8,7 +8,7 @@
     }
   },
   "enabledPlugins": {
-    "pin-actions-to-sha@agentskills": true
+    "adam@agentskills": true
   },
   "hooks": {
     "SessionStart": [
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "{ claude plugin marketplace add Adam-S-Daniel/agentskills; claude plugin install pin-actions-to-sha@agentskills; } > /tmp/e1-hook.log 2>&1; echo \"e1-hook: ran (exit $?); log at /tmp/e1-hook.log\""
+            "command": "{ claude plugin marketplace add Adam-S-Daniel/agentskills; claude plugin install adam@agentskills; } > /tmp/e1-hook.log 2>&1; echo \"e1-hook: ran (exit $?); log at /tmp/e1-hook.log\""
           }
         ]
       }
