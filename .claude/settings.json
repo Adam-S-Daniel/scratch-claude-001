@@ -19,6 +19,16 @@
             "command": "{ claude plugin marketplace add Adam-S-Daniel/agentskills; claude plugin install adam@agentskills; } > /tmp/e1-hook.log 2>&1; echo \"e1-hook: ran (exit $?); log at /tmp/e1-hook.log\""
           }
         ]
+      },
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/fleet-memory.sh\"",
+            "timeout": 30
+          }
+        ]
       }
     ]
   }
