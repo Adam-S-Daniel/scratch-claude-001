@@ -6,6 +6,7 @@ workflows:
     '.github/workflows/agent-checks.yml':
         - 'actions/checkout@v7.0.1'
         - 'adam-s-daniel/verify-actions-lock@v1.1.0'
+    '.github/workflows/dependabot-auto-merge.yml': []
     '.github/workflows/deploy.yml':
         - 'actions/checkout@v4.3.1'
         - 'actions/configure-pages@v4.0.0'
