@@ -19,16 +19,6 @@
             "command": "{ claude plugin marketplace add Adam-S-Daniel/agentskills; claude plugin install adam@agentskills; } > /tmp/e1-hook.log 2>&1; echo \"e1-hook: ran (exit $?); log at /tmp/e1-hook.log\""
           }
         ]
-      },
-      {
-        "matcher": "startup|resume|fork",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/fleet-memory.sh\"",
-            "timeout": 30
-          }
-        ]
       }
     ],
     "PreToolUse": [
@@ -39,18 +29,6 @@
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/agent-checks-guard.sh\"",
             "timeout": 10
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/guidance-load-record.sh\"",
-            "timeout": 20
           }
         ]
       }
