@@ -9,7 +9,7 @@ workflows:
     '.github/workflows/dependabot-auto-merge.yml': []
     '.github/workflows/deploy.yml':
         - 'actions/checkout@v4.3.1'
-        - 'actions/configure-pages@v4.0.0'
+        - 'actions/configure-pages@v6.0.0'
         - 'actions/deploy-pages@v5.0.1'
         - 'actions/upload-pages-artifact@v5.0.0'
 dependencies:
@@ -23,9 +23,9 @@ dependencies:
         commit: 'sha1-3d3c42e5aac5ba805825da76410c181273ba90b1'
         owner_id: 44036562
         repo_id: 197814629
-    'actions/configure-pages@v4.0.0':
-        ref: 'v4.0.0'
-        commit: 'sha1-1f0c5cde4bc74cd7e1254d0cb4de8d49e9068c7d'
+    'actions/configure-pages@v6.0.0':
+        ref: 'v6.0.0'
+        commit: 'sha1-45bfe0192ca1faeb007ade9deae92b16b8254a0d'
         owner_id: 44036562
         repo_id: 513659658
     'actions/deploy-pages@v5.0.1':
